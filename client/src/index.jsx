@@ -1,0 +1,66 @@
+import { Route, Routes } from "react-router";
+import Nav from "./components/Nav";
+import App from "./App";
+import LogIn from "./pages/LogIn";
+import SignUp from "./pages/SignUp";
+import Dashboard from "./pages/Dashboard";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { useEffect, useState } from "react";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: "berkeleybets.firebaseapp.com",
+  projectId: "berkeleybets",
+  storageBucket: "berkeleybets.firebasestorage.app",
+  messagingSenderId: "725583571196",
+  appId: "1:725583571196:web:b53d100dd00b8a41838f79",
+  measurementId: "G-3Y4HB0XY6H",
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+const auth = getAuth();
+
+const Index = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const uid = user.uid;
+        setIsLoggedIn(true);
+      } else {
+        console.log("not logged in");
+        setIsLoggedIn(false);
+      }
+    });
+  }, []);
+
+  return (
+    <div>
+      <Nav />
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/log-in" element={<LogIn />} />
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </div>
+  );
+};
+
+export default Index;
