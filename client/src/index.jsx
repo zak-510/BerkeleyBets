@@ -43,6 +43,7 @@ const Index = () => {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       setUser(user);
+      console.log(user);
     });
   }, []);
 

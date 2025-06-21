@@ -1,7 +1,13 @@
 import { Link } from "react-router";
 import CalLogo from "../assets/callogo.png";
+import { useContext } from "react";
+import { getAuth, signOut } from "firebase/auth";
+import { Context } from "..";
 
 const Nav = () => {
+  const ctx = useContext(Context);
+  const auth = getAuth();
+
   return (
     <div className="w-full flex items-center border-b">
       <div className="p-5 max-w-5xl w-full flex justify-between">
@@ -15,8 +21,26 @@ const Nav = () => {
           </Link>
         </div>
         <div className="flex justify-between gap-5 items-center">
-          <Link to="/log-in">Log in</Link>
-          <Link to="/sign-up">Sign up</Link>
+          {!ctx.user ? (
+            <>
+              <Link to="/log-in">Log in</Link>
+              <Link to="/sign-up">Sign up</Link>
+            </>
+          ) : (
+            <>
+              <div className="flex flex-col items-center">
+                <p className="text-xs">Bear Bucks</p>
+                <p className="text-xl">0</p>
+              </div>
+              <button
+                onClick={() => {
+                  signOut(auth);
+                }}
+              >
+                Log out
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
