@@ -14,7 +14,7 @@ import {
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -35,30 +35,28 @@ const analytics = getAnalytics(app);
 
 const auth = getAuth();
 
+export const Context = createContext();
+
 const Index = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const uid = user.uid;
-        setIsLoggedIn(true);
-      } else {
-        console.log("not logged in");
-        setIsLoggedIn(false);
-      }
+      setUser(user);
     });
   }, []);
 
   return (
     <div>
-      <Nav />
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/log-in" element={<LogIn />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
+      <Context.Provider value={{ user: user, setUser, setUser }}>
+        <Nav />
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/log-in" element={<LogIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </Context.Provider>
     </div>
   );
 };
