@@ -7,11 +7,16 @@ import LogIn from "./pages/LogIn.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import Nav from "./components/Nav.jsx";
 
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import Dashboard from "./pages/Dashboard.jsx";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -38,19 +43,22 @@ const auth = getAuth();
 onAuthStateChanged(auth, (user) => {
   if (user) {
     const uid = user.uid;
+    console.log("logged in");
   } else {
+    console.log("not logged in");
   }
 });
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <div className="font-instrument-serif">
+    <div className="font-lato">
       <HashRouter>
         <Nav />
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/log-in" element={<LogIn />} />
           <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </HashRouter>
     </div>
