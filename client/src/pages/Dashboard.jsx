@@ -240,21 +240,8 @@ const Dashboard = () => {
       }}></div>
 
       <div className="relative z-10 p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          {/* Logo and Title */}
-          <div className="flex items-center">
-            <div className="flex items-center mr-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-yellow-500 rounded-lg flex items-center justify-center mr-3">
-                <span className="text-xl font-bold text-white">Cal</span>
-              </div>
-              <div className="border-2 border-purple-500 px-6 py-2 rounded-lg">
-                <h1 className="text-3xl font-bold text-yellow-400">BerkeleyBets</h1>
-              </div>
-            </div>
-          </div>
-
-          {/* Bear Bucks Balance */}
+        {/* Bear Bucks Balance */}
+        <div className="flex justify-end mb-8">
           <div className="text-right">
             <p className="text-slate-300 text-sm">Bear Bucks</p>
             <p className="text-4xl font-bold text-green-400">{bearBucks.toLocaleString()}</p>
