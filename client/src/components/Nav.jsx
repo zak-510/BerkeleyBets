@@ -9,8 +9,8 @@ const Nav = () => {
   const auth = getAuth();
 
   return (
-    <div className="w-full flex items-center border-b">
-      <div className="p-5 max-w-5xl w-full flex justify-between">
+    <div className=" index w-full flex items-center border-b">
+      <div className=" z-50 p-5 max-w-5xl w-full flex justify-between">
         <div className="flex justify-between gap-5">
           <img className="w-10 object-contain" src={CalLogo}></img>
           <Link
