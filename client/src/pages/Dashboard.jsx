@@ -5,6 +5,10 @@ import nbaService from "../services/nbaService";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { Context } from "..";
 import { useNavigate } from "react-router";
+import nbaLogo from "../assets/nba.png";
+import ncaaLogo from "../assets/ncaa.png";
+import nflLogo from "../assets/nfl.webp";
+import mlbLogo from "../assets/mlb.png";
 
 const Dashboard = () => {
   const [bearBucks, setBearBucks] = useState(1500);
@@ -24,10 +28,10 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const sports = [
-    { id: "nfl", name: "NFL", icon: "🏈" },
-    { id: "nba", name: "NBA", icon: "🏀" },
-    { id: "ncaa", name: "NCAA", icon: "🏀" },
-    { id: "mlb", name: "MLB", icon: "⚾" },
+    { id: "nfl", name: "NFL", icon: nflLogo },
+    { id: "nba", name: "NBA", icon: nbaLogo },
+    { id: "ncaa", name: "NCAA", icon: ncaaLogo },
+    { id: "mlb", name: "MLB", icon: mlbLogo },
   ];
 
   if (ctx.user) {
@@ -479,8 +483,8 @@ const Dashboard = () => {
                     : "border-slate-600 bg-slate-800/50 hover:border-slate-500"
                 }`}
               >
-                <div className="text-center">
-                  <div className="text-2xl mb-1">{sport.icon}</div>
+                <div className="flex flex-col gap-2">
+                  <img className="w-10 h-10 object-contain" src={sport.icon} />
                   <div className="text-xs text-slate-300 font-medium">
                     {sport.name}
                   </div>
