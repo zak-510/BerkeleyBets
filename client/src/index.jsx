@@ -4,6 +4,7 @@ import App from "./App";
 import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 import {
   getAuth,
@@ -31,6 +32,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
 const auth = getAuth();
@@ -47,9 +49,22 @@ const Index = () => {
     });
   }, []);
 
+  //   const docRef = doc(db, "Users", "P9sltO4r1DYRySceULuVNBKA4og1");
+
+  //   console.log(docRef);
+  //   getDoc(docRef).then((docSnap) => {
+  //     console.log(docSnap);
+  //     if (docSnap.exists()) {
+  //       console.log("Document data:", docSnap.data());
+  //     } else {
+  //       // docSnap.data() will be undefined in this case
+  //       console.log("No such document!");
+  //     }
+  //   });
+
   return (
     <div>
-      <Context.Provider value={{ user: user, setUser, setUser }}>
+      <Context.Provider value={{ user: user, setUser: setUser, db: db }}>
         <Nav />
         <Routes>
           <Route path="/" element={<App />} />

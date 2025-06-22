@@ -3,6 +3,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { Link, useNavigate } from "react-router";
 import { Context } from "..";
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
 const SignUp = ({ onSignUp }) => {
   const ctx = useContext(Context);
@@ -79,9 +80,16 @@ const SignUp = ({ onSignUp }) => {
         // Signed up
         const user = userCredential.user;
         ctx.setUser(user);
-        console.log(user);
-        console.log("created user");
-        navigate("/dashboard");
+        setDoc(doc(ctx.db, "Users", user.uid), {
+          activeBets: 25,
+          bearBucks: 1500,
+          losses: 0,
+          wins: 0,
+        }).then(() => {
+          console.log(user);
+          console.log("created user");
+          navigate("/dashboard");
+        });
         // ...
       })
       .catch((error) => {
