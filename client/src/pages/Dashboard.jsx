@@ -1,15 +1,18 @@
 import { useState, useMemo, useEffect } from 'react';
 import Fuse from 'fuse.js';
 import nflService from '../services/nflService';
+import nbaService from '../services/nbaService';
 
 const Dashboard = () => {
   const [bearBucks, setBearBucks] = useState(1500);
   const [selectedSport, setSelectedSport] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [nflPlayers, setNflPlayers] = useState([]);
+  const [nbaPlayers, setNbaPlayers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [apiHealthy, setApiHealthy] = useState(false);
+  const [nflApiHealthy, setNflApiHealthy] = useState(false);
+  const [nbaApiHealthy, setNbaApiHealthy] = useState(false);
 
   const sports = [
     { id: 'nfl', name: 'NFL', icon: '🏈' },
@@ -21,24 +24,36 @@ const Dashboard = () => {
   // Check API health on component mount
   useEffect(() => {
     const checkApiHealth = async () => {
+      // Check NFL API
       try {
         await nflService.healthCheck();
-        setApiHealthy(true);
+        setNflApiHealthy(true);
       } catch (error) {
-        console.error('API health check failed:', error);
-        setApiHealthy(false);
+        console.error('NFL API health check failed:', error);
+        setNflApiHealthy(false);
+      }
+
+      // Check NBA API
+      try {
+        await nbaService.healthCheck();
+        setNbaApiHealthy(true);
+      } catch (error) {
+        console.error('NBA API health check failed:', error);
+        setNbaApiHealthy(false);
       }
     };
     
     checkApiHealth();
   }, []);
 
-  // Load NFL players when NFL sport is selected
+  // Load players when sport is selected
   useEffect(() => {
-    if (selectedSport === 'nfl' && apiHealthy) {
+    if (selectedSport === 'nfl' && nflApiHealthy) {
       loadNFLPlayers();
+    } else if (selectedSport === 'nba' && nbaApiHealthy) {
+      loadNBAPlayers();
     }
-  }, [selectedSport, apiHealthy]);
+  }, [selectedSport, nflApiHealthy, nbaApiHealthy]);
 
   const loadNFLPlayers = async () => {
     setLoading(true);
@@ -53,6 +68,24 @@ const Dashboard = () => {
     } catch (err) {
       setError('Failed to load NFL players. Make sure the API server is running.');
       console.error('Error loading NFL players:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadNBAPlayers = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await nbaService.fetchTopPlayers('ALL', 50);
+      const formattedPlayers = response.players.map(player => 
+        nbaService.formatPlayerForUI(player)
+      );
+      setNbaPlayers(formattedPlayers);
+    } catch (err) {
+      setError('Failed to load NBA players. Make sure the API server is running.');
+      console.error('Error loading NBA players:', err);
     } finally {
       setLoading(false);
     }
@@ -82,36 +115,32 @@ const Dashboard = () => {
     }
   };
 
+  // Handle search for NBA players
+  const handleNBASearch = async (query) => {
+    if (!query.trim()) {
+      loadNBAPlayers(); // Reset to all players
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await nbaService.searchPlayers(query);
+      const formattedPlayers = response.players.map(player => 
+        nbaService.formatPlayerForUI(player)
+      );
+      setNbaPlayers(formattedPlayers);
+    } catch (err) {
+      setError('Failed to search players.');
+      console.error('Error searching NBA players:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Sample player data for other sports
   const players = {
-    nba: [
-      {
-        id: 'jokic',
-        name: 'Nikola Jokić',
-        team: 'Denver Nuggets',
-        position: 'C',
-        stats: {
-          points: 26.4,
-          rebounds: 12.4,
-          assists: 9.0,
-          fieldGoalPercentage: 58.3
-        },
-        image: '🏀'
-      },
-      {
-        id: 'embiid',
-        name: 'Joel Embiid',
-        team: 'Philadelphia 76ers',
-        position: 'C',
-        stats: {
-          points: 35.3,
-          rebounds: 11.3,
-          assists: 5.7,
-          fieldGoalPercentage: 53.8
-        },
-        image: '🏀'
-      }
-    ],
     mlb: [
       {
         id: 'ohtani',
@@ -168,9 +197,9 @@ const Dashboard = () => {
     minMatchCharLength: 2
   };
 
-  // Create fuzzy search instance for non-NFL sports
+  // Create fuzzy search instance for non-API sports
   const fuse = useMemo(() => {
-    if (selectedSport && selectedSport !== 'nfl' && players[selectedSport]) {
+    if (selectedSport && selectedSport !== 'nfl' && selectedSport !== 'nba' && players[selectedSport]) {
       return new Fuse(players[selectedSport], fuseOptions);
     }
     return null;
@@ -182,6 +211,10 @@ const Dashboard = () => {
     
     if (selectedSport === 'nfl') {
       return nflPlayers; // NFL players are already filtered by the API
+    }
+    
+    if (selectedSport === 'nba') {
+      return nbaPlayers; // NBA players are already filtered by the API
     }
     
     const currentPlayers = players[selectedSport] || [];
@@ -196,9 +229,9 @@ const Dashboard = () => {
     }
     
     return currentPlayers;
-  }, [selectedSport, searchTerm, fuse, players, nflPlayers]);
+  }, [selectedSport, searchTerm, fuse, players, nflPlayers, nbaPlayers]);
 
-  // Debounce NFL search
+  // Debounce search for API-based sports
   useEffect(() => {
     if (selectedSport === 'nfl' && searchTerm !== '') {
       const timeoutId = setTimeout(() => {
@@ -208,6 +241,14 @@ const Dashboard = () => {
       return () => clearTimeout(timeoutId);
     } else if (selectedSport === 'nfl' && searchTerm === '') {
       loadNFLPlayers();
+    } else if (selectedSport === 'nba' && searchTerm !== '') {
+      const timeoutId = setTimeout(() => {
+        handleNBASearch(searchTerm);
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
+    } else if (selectedSport === 'nba' && searchTerm === '') {
+      loadNBAPlayers();
     }
   }, [searchTerm, selectedSport]);
 
@@ -234,38 +275,31 @@ const Dashboard = () => {
       switch (selectedSport) {
         case 'nfl':
           return (
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-1 gap-2 text-xs">
               <div className="bg-slate-700/50 rounded p-2">
                 <div className="text-slate-400">Predicted Fantasy Points 2025 Season</div>
                 <div className="text-white font-semibold">{player.stats.predictedPoints?.toFixed(1)}</div>
-              </div>
-              <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">Accuracy</div>
-                <div className="text-white font-semibold">{player.stats.accuracy}%</div>
               </div>
             </div>
           );
         case 'nba':
           return (
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-3 gap-2 text-xs">
               <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">PPG</div>
-                <div className="text-white font-semibold">{player.stats.points}</div>
+                <div className="text-slate-400">Projected Points</div>
+                <div className="text-white font-semibold">{player.stats.predictedPoints?.toFixed(1)}</div>
               </div>
               <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">RPG</div>
-                <div className="text-white font-semibold">{player.stats.rebounds}</div>
+                <div className="text-slate-400">Projected Rebounds</div>
+                <div className="text-white font-semibold">{player.stats.predictedRebounds?.toFixed(1)}</div>
               </div>
               <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">APG</div>
-                <div className="text-white font-semibold">{player.stats.assists}</div>
-              </div>
-              <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">FG%</div>
-                <div className="text-white font-semibold">{player.stats.fieldGoalPercentage}%</div>
+                <div className="text-slate-400">Projected Assists</div>
+                <div className="text-white font-semibold">{player.stats.predictedAssists?.toFixed(1)}</div>
               </div>
             </div>
           );
+
         case 'mlb':
           return (
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -306,7 +340,9 @@ const Dashboard = () => {
               <h3 className="text-lg font-semibold text-white group-hover:text-yellow-400 transition-colors">
                 {player.name}
               </h3>
-              <p className="text-slate-400 text-sm">{player.team}</p>
+              {selectedSport !== 'nfl' && selectedSport !== 'nba' && (
+                <p className="text-slate-400 text-sm">{player.team}</p>
+              )}
               <p className="text-yellow-400 text-xs font-medium">{player.position}</p>
             </div>
           </div>
@@ -331,14 +367,17 @@ const Dashboard = () => {
 
       <div className="relative z-10 p-6">
         {/* API Status Indicator */}
-        {selectedSport === 'nfl' && (
+        {(selectedSport === 'nfl' || selectedSport === 'nba') && (
           <div className="flex justify-center mb-4">
             <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-              apiHealthy 
+              (selectedSport === 'nfl' ? nflApiHealthy : nbaApiHealthy)
                 ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
                 : 'bg-red-500/20 text-red-400 border border-red-500/30'
             }`}>
-              {apiHealthy ? '🟢 NFL API Connected' : '🔴 NFL API Disconnected'}
+              {selectedSport === 'nfl' 
+                ? (nflApiHealthy ? '🟢 NFL API Connected' : '🔴 NFL API Disconnected')
+                : (nbaApiHealthy ? '🟢 NBA API Connected' : '🔴 NBA API Disconnected')
+              }
             </div>
           </div>
         )}
@@ -399,6 +438,8 @@ const Dashboard = () => {
                     setSearchTerm('');
                     if (selectedSport === 'nfl') {
                       loadNFLPlayers();
+                    } else if (selectedSport === 'nba') {
+                      loadNBAPlayers();
                     }
                   }}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
@@ -456,19 +497,19 @@ const Dashboard = () => {
                 ) : (
                   // Players Section
                   <>
-                    {error && (
-                      <div className="mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
-                        <p className="text-red-400 text-center">{error}</p>
-                        {selectedSport === 'nfl' && (
-                          <button 
-                            onClick={loadNFLPlayers}
-                            className="mt-2 mx-auto block px-4 py-2 bg-red-500/30 hover:bg-red-500/50 rounded-lg text-red-300 transition-colors"
-                          >
-                            Retry
-                          </button>
-                        )}
-                      </div>
-                    )}
+                                         {error && (
+                       <div className="mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
+                         <p className="text-red-400 text-center">{error}</p>
+                         {(selectedSport === 'nfl' || selectedSport === 'nba') && (
+                           <button 
+                             onClick={selectedSport === 'nfl' ? loadNFLPlayers : loadNBAPlayers}
+                             className="mt-2 mx-auto block px-4 py-2 bg-red-500/30 hover:bg-red-500/50 rounded-lg text-red-300 transition-colors"
+                           >
+                             Retry
+                           </button>
+                         )}
+                       </div>
+                     )}
                     
                     <div className="space-y-4">
                       {loading ? (
@@ -486,8 +527,10 @@ const Dashboard = () => {
                       ) : (
                         <div className="text-center py-8">
                           <p className="text-slate-300 text-lg">
-                            {selectedSport === 'nfl' && !apiHealthy 
+                            {selectedSport === 'nfl' && !nflApiHealthy 
                               ? 'NFL API is not available. Please start the API server.' 
+                              : selectedSport === 'nba' && !nbaApiHealthy
+                              ? 'NBA API is not available. Please start the API server.'
                               : 'Select a sport to view available players'
                             }
                           </p>
@@ -496,10 +539,10 @@ const Dashboard = () => {
                     </div>
                     
                     {/* Load More Players Button */}
-                    {filteredPlayers.length > 0 && selectedSport === 'nfl' && (
+                    {filteredPlayers.length > 0 && (selectedSport === 'nfl' || selectedSport === 'nba') && (
                       <div className="mt-6 text-center">
                         <button 
-                          onClick={loadNFLPlayers}
+                          onClick={selectedSport === 'nfl' ? loadNFLPlayers : loadNBAPlayers}
                           className="px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white rounded-lg font-medium hover:from-blue-700 hover:to-yellow-600 transition-all"
                         >
                           🔄 Refresh Players
