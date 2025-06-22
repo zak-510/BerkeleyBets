@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useContext } from "react";
 import Fuse from "fuse.js";
 import nflService from "../services/nflService";
 import nbaService from "../services/nbaService";
+import mlbService from "../services/mlbService";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { Context } from "..";
 import { useNavigate } from "react-router";
@@ -16,10 +17,12 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [nflPlayers, setNflPlayers] = useState([]);
   const [nbaPlayers, setNbaPlayers] = useState([]);
+  const [mlbPlayers, setMlbPlayers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [nflApiHealthy, setNflApiHealthy] = useState(false);
   const [nbaApiHealthy, setNbaApiHealthy] = useState(false);
+  const [mlbApiHealthy, setMlbApiHealthy] = useState(false);
   const [activeBets, setActiveBets] = useState(12);
   const [wins, setWins] = useState(7);
   const [losses, setLosses] = useState(3);
@@ -75,6 +78,15 @@ const Dashboard = () => {
         console.error("NBA API health check failed:", error);
         setNbaApiHealthy(false);
       }
+
+      // Check MLB API
+      try {
+        await mlbService.healthCheck();
+        setMlbApiHealthy(true);
+      } catch (error) {
+        console.error("MLB API health check failed:", error);
+        setMlbApiHealthy(false);
+      }
     };
 
     checkApiHealth();
@@ -86,8 +98,10 @@ const Dashboard = () => {
       loadNFLPlayers();
     } else if (selectedSport === "nba" && nbaApiHealthy) {
       loadNBAPlayers();
+    } else if (selectedSport === "mlb" && mlbApiHealthy) {
+      loadMLBPlayers();
     }
-  }, [selectedSport, nflApiHealthy, nbaApiHealthy]);
+  }, [selectedSport, nflApiHealthy, nbaApiHealthy, mlbApiHealthy]);
 
   const loadNFLPlayers = async () => {
     setLoading(true);
@@ -124,6 +138,26 @@ const Dashboard = () => {
         "Failed to load NBA players. Make sure the API server is running."
       );
       console.error("Error loading NBA players:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMLBPlayers = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await mlbService.fetchTopPlayers("ALL", 50);
+      const formattedPlayers = response.players.map((player) =>
+        mlbService.formatPlayerForUI(player)
+      );
+      setMlbPlayers(formattedPlayers);
+    } catch (err) {
+      setError(
+        "Failed to load MLB players. Make sure the API server is running."
+      );
+      console.error("Error loading MLB players:", err);
     } finally {
       setLoading(false);
     }
@@ -177,36 +211,33 @@ const Dashboard = () => {
     }
   };
 
+  // Handle search for MLB players
+  const handleMLBSearch = async (query) => {
+    if (!query.trim()) {
+      loadMLBPlayers(); // Reset to all players
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await mlbService.searchPlayers(query);
+      const formattedPlayers = response.players.map((player) =>
+        mlbService.formatPlayerForUI(player)
+      );
+      setMlbPlayers(formattedPlayers);
+    } catch (err) {
+      setError("Failed to search players.");
+      console.error("Error searching MLB players:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Sample player data for other sports
   const players = {
-    mlb: [
-      {
-        id: "ohtani",
-        name: "Shohei Ohtani",
-        team: "Los Angeles Dodgers",
-        position: "DH/SP",
-        stats: {
-          battingAvg: 0.304,
-          homeRuns: 44,
-          rbi: 95,
-          era: 3.14,
-        },
-        image: "⚾",
-      },
-      {
-        id: "judge",
-        name: "Aaron Judge",
-        team: "New York Yankees",
-        position: "RF",
-        stats: {
-          battingAvg: 0.267,
-          homeRuns: 37,
-          rbi: 75,
-          onBasePercentage: 0.406,
-        },
-        image: "⚾",
-      },
-    ],
+    // No sample MLB data since we're using the API
   };
 
   const teams = [
@@ -241,6 +272,7 @@ const Dashboard = () => {
       selectedSport &&
       selectedSport !== "nfl" &&
       selectedSport !== "nba" &&
+      selectedSport !== "mlb" &&
       players[selectedSport]
     ) {
       return new Fuse(players[selectedSport], fuseOptions);
@@ -260,6 +292,10 @@ const Dashboard = () => {
       return nbaPlayers; // NBA players are already filtered by the API
     }
 
+    if (selectedSport === "mlb") {
+      return mlbPlayers; // MLB players are already filtered by the API
+    }
+
     const currentPlayers = players[selectedSport] || [];
 
     if (!searchTerm.trim()) {
@@ -272,7 +308,7 @@ const Dashboard = () => {
     }
 
     return currentPlayers;
-  }, [selectedSport, searchTerm, fuse, players, nflPlayers, nbaPlayers]);
+  }, [selectedSport, searchTerm, fuse, players, nflPlayers, nbaPlayers, mlbPlayers]);
 
   // Debounce search for API-based sports
   useEffect(() => {
@@ -292,6 +328,14 @@ const Dashboard = () => {
       return () => clearTimeout(timeoutId);
     } else if (selectedSport === "nba" && searchTerm === "") {
       loadNBAPlayers();
+    } else if (selectedSport === "mlb" && searchTerm !== "") {
+      const timeoutId = setTimeout(() => {
+        handleMLBSearch(searchTerm);
+      }, 500);
+
+      return () => clearTimeout(timeoutId);
+    } else if (selectedSport === "mlb" && searchTerm === "") {
+      loadMLBPlayers();
     }
   }, [searchTerm, selectedSport]);
 
@@ -355,33 +399,27 @@ const Dashboard = () => {
 
         case "mlb":
           return (
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">AVG</div>
-                <div className="text-white font-semibold">
-                  {player.stats.battingAvg}
-                </div>
-              </div>
-              <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">HR</div>
-                <div className="text-white font-semibold">
-                  {player.stats.homeRuns}
-                </div>
-              </div>
-              <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">RBI</div>
-                <div className="text-white font-semibold">
-                  {player.stats.rbi}
-                </div>
-              </div>
+            <div className="grid grid-cols-1 gap-2 text-xs">
               <div className="bg-slate-700/50 rounded p-2">
                 <div className="text-slate-400">
-                  {player.stats.era ? "ERA" : "OBP"}
+                  Predicted Fantasy Points 2025 Season
                 </div>
                 <div className="text-white font-semibold">
-                  {player.stats.era || player.stats.onBasePercentage}
+                  {player.stats.predictedFantasyPoints?.toFixed(1)}
                 </div>
               </div>
+              {player.stats.displayStats && (
+                <div className="grid grid-cols-3 gap-2">
+                  {player.stats.displayStats.map((stat, index) => (
+                    <div key={index} className="bg-slate-700/50 rounded p-2">
+                      <div className="text-slate-400">{stat.label}</div>
+                      <div className="text-white font-semibold">
+                        {typeof stat.value === 'number' ? stat.value.toFixed(stat.label.includes('Average') ? 3 : 0) : stat.value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           );
         default:
