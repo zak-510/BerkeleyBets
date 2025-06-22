@@ -1,4 +1,4 @@
-# BerkeleyBets
+# BerkeleyBets 🐻🐻
 
 An AI-powered sports betting platform that combines predictive analytics, live data integration, and modern web technologies to provide intelligent betting insights across NBA, NFL, and MLB.
 
