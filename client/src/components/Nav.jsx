@@ -30,7 +30,9 @@ const Nav = () => {
             <>
               <div className="flex flex-col items-center">
                 <p className="text-xs">Bear Bucks</p>
-                <p className="text-xl">0</p>
+                <p className="text-xl text-green-300 font-bold">
+                  {ctx.bearBucks}
+                </p>
               </div>
               <button
                 onClick={() => {

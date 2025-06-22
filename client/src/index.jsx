@@ -41,6 +41,7 @@ export const Context = createContext();
 
 const Index = () => {
   const [user, setUser] = useState(false);
+  const [bearBucks, setBearBucks] = useState(0);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -64,7 +65,15 @@ const Index = () => {
 
   return (
     <div>
-      <Context.Provider value={{ user: user, setUser: setUser, db: db }}>
+      <Context.Provider
+        value={{
+          user: user,
+          setUser: setUser,
+          db: db,
+          bearBucks: bearBucks,
+          setBearBucks: setBearBucks,
+        }}
+      >
         <Nav />
         <Routes>
           <Route path="/" element={<App />} />
