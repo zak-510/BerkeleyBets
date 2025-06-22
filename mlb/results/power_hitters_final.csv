@@ -1,0 +1,5 @@
+player_name,position,player_type,predicted_fantasy_points,fantasy_confidence,prediction_date,estimated_batting_avg,estimated_on_base_pct,estimated_slugging_pct,estimated_walk_rate,estimated_strikeout_rate,skill_confidence,value_score
+José Altuve,2B,batter,5.33,0.3,2025-06-22 02:13:18,0.6,0.5,0.6,0.0,0.0,0.6,35.132000000000005
+Manny Machado,3B,batter,5.33,0.3,2025-06-22 02:13:18,0.5,0.5,0.45,0.0,0.25,0.6,30.632
+Matt Olson,1B,batter,3.88,0.3,2025-06-22 02:13:18,0.5,0.5,0.45,0.2,0.2,0.6,30.052
+Pete Alonso,1B,batter,3.05,0.3,2025-06-22 02:13:18,0.5,0.5,0.45,0.0,0.25,0.6,29.72

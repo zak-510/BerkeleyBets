@@ -1,0 +1,21 @@
+player_name,position,player_type,predicted_fantasy_points,fantasy_confidence,prediction_date,estimated_batting_avg,estimated_on_base_pct,estimated_slugging_pct,estimated_walk_rate,estimated_strikeout_rate,skill_confidence
+Paul Goldschmidt,1B,batter,6.06,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.0,0.333,0.6
+José Altuve,2B,batter,5.33,0.3,2025-06-22 02:13:18,0.6,0.5,0.6,0.0,0.0,0.6
+Freddie Freeman,1B,batter,5.1,0.3,2025-06-22 02:13:18,0.25,0.325,0.3,0.2,0.4,0.6
+Salvador Pérez,C,batter,3.05,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.0,0.0,0.6
+Marcus Semien,2B,batter,3.87,0.3,2025-06-22 02:13:18,0.25,0.325,0.3,0.0,0.0,0.6
+Nolan Arenado,3B,batter,2.91,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.0,0.0,0.6
+Aaron Judge,OF,batter,3.32,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.2,0.2,0.6
+Manny Machado,3B,batter,5.33,0.3,2025-06-22 02:13:18,0.5,0.5,0.45,0.0,0.25,0.6
+Francisco Lindor,SS,batter,6.45,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.2,0.0,0.6
+Mookie Betts,OF,batter,6.74,0.3,2025-06-22 02:13:18,0.25,0.325,0.4,0.2,0.2,0.6
+Trea Turner,SS,batter,6.7,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.0,0.5,0.6
+Jesse Winker,OF,batter,3.05,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.0,0.0,0.6
+Matt Olson,1B,batter,3.88,0.3,2025-06-22 02:13:18,0.5,0.5,0.45,0.2,0.2,0.6
+Pete Alonso,1B,batter,3.05,0.3,2025-06-22 02:13:18,0.5,0.5,0.45,0.0,0.25,0.6
+Cody Bellinger,OF,batter,5.09,0.3,2025-06-22 02:13:18,0.25,0.325,0.3,0.0,0.25,0.6
+Rafael Devers,3B,batter,2.77,0.3,2025-06-22 02:13:18,0.25,0.325,0.3,0.333,0.0,0.6
+Gleyber Torres,2B,batter,6.73,0.3,2025-06-22 02:13:18,0.2,0.275,0.25,0.167,0.167,0.6
+Juan Soto,OF,batter,6.58,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.333,0.167,0.6
+Jazz Chisholm Jr.,2B,batter,5.25,0.3,2025-06-22 02:13:18,0.25,0.325,0.3,0.0,0.0,0.6
+Randy Arozarena,OF,batter,3.73,0.3,2025-06-22 02:13:18,0.25,0.325,0.3,0.0,0.25,0.6

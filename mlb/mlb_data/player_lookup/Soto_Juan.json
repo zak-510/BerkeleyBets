@@ -1,0 +1,15 @@
+{
+  "player_id": 665742,
+  "full_name": "Juan Soto",
+  "lookup_date": "2025-06-21T20:57:55.598465",
+  "lookup_data": {
+    "name_last": "soto",
+    "name_first": "juan",
+    "key_mlbam": 665742,
+    "key_retro": "sotoj001",
+    "key_bbref": "sotoju01",
+    "key_fangraphs": 20123,
+    "mlb_played_first": 2018.0,
+    "mlb_played_last": 2025.0
+  }
+}

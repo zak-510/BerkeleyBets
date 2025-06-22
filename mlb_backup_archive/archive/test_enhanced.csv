@@ -1,0 +1,6 @@
+player_name,position,avg_fantasy_points_L15,avg_fantasy_points_L10,avg_fantasy_points_L5,games_since_last_good_game,trend_last_5_games,consistency_score
+Aaron Judge,OF,8.5,9.2,7.8,2,0.5,0.75
+Mookie Betts,OF,7.2,7.8,8.1,1,1.2,0.82
+Spencer Strider,P,12.8,13.2,11.9,1,0.8,0.85
+Gerrit Cole,P,11.5,12.1,10.8,2,0.3,0.79
+Vladimir Guerrero Jr.,1B,6.8,6.5,7.3,3,0.8,0.68

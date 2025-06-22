@@ -1,0 +1,82 @@
+[
+  {
+    "timestamp": "2025-06-21T20:35:25.827379",
+    "operation": "game_logs",
+    "player_id": 592450,
+    "year": 2024,
+    "player_type": "b",
+    "error": "season_game_logs() takes 1 positional argument but 3 were given"
+  },
+  {
+    "timestamp": "2025-06-21T20:35:29.837552",
+    "operation": "game_logs",
+    "player_id": 518692,
+    "year": 2024,
+    "player_type": "b",
+    "error": "season_game_logs() takes 1 positional argument but 3 were given"
+  },
+  {
+    "timestamp": "2025-06-21T20:35:35.852860",
+    "operation": "game_logs",
+    "player_id": 592518,
+    "year": 2024,
+    "player_type": "b",
+    "error": "season_game_logs() takes 1 positional argument but 3 were given"
+  },
+  {
+    "timestamp": "2025-06-21T20:35:39.861261",
+    "operation": "game_logs",
+    "player_id": 607208,
+    "year": 2024,
+    "player_type": "b",
+    "error": "season_game_logs() takes 1 positional argument but 3 were given"
+  },
+  {
+    "timestamp": "2025-06-21T20:35:45.875451",
+    "operation": "game_logs",
+    "player_id": 605141,
+    "year": 2024,
+    "player_type": "b",
+    "error": "season_game_logs() takes 1 positional argument but 3 were given"
+  },
+  {
+    "timestamp": "2025-06-21T20:35:53.897028",
+    "operation": "game_logs",
+    "player_id": 596019,
+    "year": 2024,
+    "player_type": "b",
+    "error": "season_game_logs() takes 1 positional argument but 3 were given"
+  },
+  {
+    "timestamp": "2025-06-21T20:35:57.907124",
+    "operation": "game_logs",
+    "player_id": 543037,
+    "year": 2024,
+    "player_type": "p",
+    "error": "season_game_logs() takes 1 positional argument but 3 were given"
+  },
+  {
+    "timestamp": "2025-06-21T20:36:01.924720",
+    "operation": "game_logs",
+    "player_id": 594798,
+    "year": 2024,
+    "player_type": "p",
+    "error": "season_game_logs() takes 1 positional argument but 3 were given"
+  },
+  {
+    "timestamp": "2025-06-21T20:36:05.935032",
+    "operation": "game_logs",
+    "player_id": 669456,
+    "year": 2024,
+    "player_type": "p",
+    "error": "season_game_logs() takes 1 positional argument but 3 were given"
+  },
+  {
+    "timestamp": "2025-06-21T20:36:11.951382",
+    "operation": "game_logs",
+    "player_id": 623352,
+    "year": 2024,
+    "player_type": "p",
+    "error": "season_game_logs() takes 1 positional argument but 3 were given"
+  }
+]

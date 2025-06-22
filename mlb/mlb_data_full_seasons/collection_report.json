@@ -1,0 +1,31 @@
+{
+  "collection_date": "2025-06-22T00:06:24.471173",
+  "seasons_collected": [
+    "2023",
+    "2024"
+  ],
+  "collection_stats": {
+    "total_players_processed": 0,
+    "total_games_collected": 1419,
+    "errors": [],
+    "position_counts": {},
+    "season_counts": {
+      "2023_batting": 348,
+      "2023_pitching": 359,
+      "2024_batting": 355,
+      "2024_pitching": 357
+    },
+    "unique_players": 931,
+    "position_coverage": {
+      "total_batting_games": 703,
+      "unique_batters": 436,
+      "total_pitching_games": 716,
+      "unique_pitchers": 497
+    }
+  },
+  "success_criteria": {
+    "target_games_per_position": 1000,
+    "target_total_games": 10000,
+    "achieved_total_games": 1419
+  }
+}

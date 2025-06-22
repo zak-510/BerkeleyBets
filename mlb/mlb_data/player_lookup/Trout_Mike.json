@@ -1,0 +1,15 @@
+{
+  "player_id": 545361,
+  "full_name": "Mike Trout",
+  "lookup_date": "2025-06-21T20:57:51.595862",
+  "lookup_data": {
+    "name_last": "trout",
+    "name_first": "mike",
+    "key_mlbam": 545361,
+    "key_retro": "troum001",
+    "key_bbref": "troutmi01",
+    "key_fangraphs": 10155,
+    "mlb_played_first": 2011.0,
+    "mlb_played_last": 2025.0
+  }
+}
