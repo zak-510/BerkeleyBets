@@ -21,7 +21,7 @@ const Nav = () => {
             BerkeleyBets
           </Link>
         </div>
-        <div className="flex justify-between gap-5 items-center">
+        <div className="flex justify-between gap-2 items-center">
           {!ctx.user ? (
             <>
               <Link to="/log-in">Log in</Link>
@@ -35,6 +35,10 @@ const Nav = () => {
                   {ctx.bearBucks}
                 </p>
               </div>
+              <Link to="/add" className="text-3xl text-green-300">
+                +
+              </Link>
+              <div className="p-2"></div>
               <button
                 onClick={() => {
                   signOut(auth);

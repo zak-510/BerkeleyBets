@@ -16,6 +16,7 @@ import {
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { createContext, useEffect, useState } from "react";
+import Add from "./pages/Add";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -80,6 +81,7 @@ const Index = () => {
           <Route path="/log-in" element={<LogIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/add" element={<Add />} />
         </Routes>
       </Context.Provider>
     </div>
