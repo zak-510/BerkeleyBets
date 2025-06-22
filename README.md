@@ -1,4 +1,4 @@
-# BerkeleyBets 🎰  
+# BerkeleyBets 🎰 🐻
 An AI-powered sports betting platform combining predictive analytics, live data, and smart design — built with a Berkeley edge.
 
 ---
