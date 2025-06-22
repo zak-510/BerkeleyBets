@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import Fuse from 'fuse.js';
 
 const Dashboard = () => {
   const [bearBucks, setBearBucks] = useState(1500);
   const [selectedSport, setSelectedSport] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const sports = [
     { id: 'nfl', name: 'NFL', icon: '🏈' },
@@ -116,6 +118,41 @@ const Dashboard = () => {
     }
   ];
 
+  // Fuzzy search configuration
+  const fuseOptions = {
+    keys: ['name', 'team', 'position'], // Fields to search
+    threshold: 0.4, // 0 = exact match, 1 = match anything
+    distance: 100,  // How far to search
+    includeScore: true,
+    minMatchCharLength: 2
+  };
+
+  // Create fuzzy search instance
+  const fuse = useMemo(() => {
+    if (selectedSport && players[selectedSport]) {
+      return new Fuse(players[selectedSport], fuseOptions);
+    }
+    return null;
+  }, [selectedSport, players]);
+
+  // Filter players based on search
+  const filteredPlayers = useMemo(() => {
+    if (!selectedSport || selectedSport === 'ncaa') return [];
+    
+    const currentPlayers = players[selectedSport] || [];
+    
+    if (!searchTerm.trim()) {
+      return currentPlayers; // Show all if no search term
+    }
+    
+    if (fuse) {
+      const results = fuse.search(searchTerm);
+      return results.map(result => result.item);
+    }
+    
+    return currentPlayers;
+  }, [selectedSport, searchTerm, fuse, players]);
+
   // Filter teams based on selected sport
   const getFilteredTeams = () => {
     if (selectedSport === 'ncaa') {
@@ -129,7 +166,6 @@ const Dashboard = () => {
   };
 
   const filteredTeams = getFilteredTeams();
-  const currentPlayers = players[selectedSport] || [];
 
   const renderPlayerCard = (player) => {
     const getStatDisplay = () => {
@@ -254,7 +290,10 @@ const Dashboard = () => {
             {sports.map((sport) => (
               <button
                 key={sport.id}
-                onClick={() => setSelectedSport(sport.id)}
+                onClick={() => {
+                  setSelectedSport(sport.id);
+                  setSearchTerm(''); // Clear search when switching sports
+                }}
                 className={`w-20 h-20 rounded-xl border-2 flex items-center justify-center transition-all hover:scale-105 ${
                   selectedSport === sport.id
                     ? 'border-yellow-400 bg-yellow-400/20'
@@ -269,6 +308,46 @@ const Dashboard = () => {
             ))}
           </div>
         </div>
+
+        {/* Search Bar - Only show for non-NCAA sports */}
+        {selectedSport && selectedSport !== 'ncaa' && (
+          <div className="max-w-4xl mx-auto mb-6">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder={`Search ${selectedSport.toUpperCase()} players...`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-3 pl-12 bg-slate-800/30 backdrop-blur-lg rounded-xl border border-slate-700/50 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+              />
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            
+            {/* Search Results Count */}
+            {searchTerm && (
+              <div className="mt-2 text-sm text-slate-400 text-center">
+                {filteredPlayers.length} player{filteredPlayers.length !== 1 ? 's' : ''} found
+                {filteredPlayers.length === 0 && searchTerm.length > 2 && (
+                  <span className="text-yellow-400"> - try a different spelling</span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Content Section */}
         <div className="max-w-4xl mx-auto">
@@ -307,16 +386,27 @@ const Dashboard = () => {
                     </div>
                   </>
                 ) : (
-                  // Players Section for NFL, NBA, MLB
+                  // Players Section with Search Results
                   <>
                     <div className="space-y-4">
-                      {currentPlayers.map(renderPlayerCard)}
+                      {filteredPlayers.length > 0 ? (
+                        filteredPlayers.map(renderPlayerCard)
+                      ) : searchTerm ? (
+                        <div className="text-center py-8">
+                          <p className="text-slate-300 text-lg">No players found for "{searchTerm}"</p>
+                          <p className="text-slate-400 text-sm mt-2">Try checking the spelling or search for a different player</p>
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-slate-300 text-lg">Loading players...</p>
+                        </div>
+                      )}
                     </div>
                     
                     {/* Add More Players Button */}
                     <div className="mt-6 text-center">
                       <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white rounded-lg font-medium hover:from-blue-700 hover:to-yellow-600 transition-all">
-                        + Add More Players
+                        + Load More Players
                       </button>
                     </div>
                   </>
