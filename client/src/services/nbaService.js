@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8081/api';
+const API_BASE_URL = 'http://localhost:3001/api/nba';
 
 class NBAService {
   async fetchAllPlayers() {
@@ -40,9 +40,9 @@ class NBAService {
     }
   }
 
-  async fetchTopPlayers(position = 'ALL', limit = 20) {
+  async fetchTopPlayers(position = 'ALL', limit = 50) {
     try {
-      const response = await fetch(`${API_BASE_URL}/top/${position}/${limit}`);
+      const response = await fetch(`${API_BASE_URL}/players/top?limit=${limit}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -68,7 +68,7 @@ class NBAService {
 
   async healthCheck() {
     try {
-      const response = await fetch(`${API_BASE_URL}/health`);
+      const response = await fetch(`http://localhost:3001/health`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -82,15 +82,15 @@ class NBAService {
   // Helper method to format player data for the UI
   formatPlayerForUI(apiPlayer) {
     return {
-      id: apiPlayer.name.toLowerCase().replace(/\s+/g, '-'),
-      name: apiPlayer.name,
-      team: this.getTeamByPosition(apiPlayer.position), // We'll need to map this
+      id: apiPlayer.player_name?.toLowerCase().replace(/\s+/g, '-') || apiPlayer.name?.toLowerCase().replace(/\s+/g, '-'),
+      name: apiPlayer.player_name || apiPlayer.name,
+      team: apiPlayer.team_abbreviation || this.getTeamByPosition(apiPlayer.position),
       position: apiPlayer.position,
       stats: {
-        predictedPoints: apiPlayer.predictedPoints,
-        predictedRebounds: apiPlayer.predictedRebounds,
-        predictedAssists: apiPlayer.predictedAssists,
-        predictedFantasyPoints: apiPlayer.predictedFantasyPoints,
+        predictedPoints: apiPlayer.predicted_points || apiPlayer.predictedPoints,
+        predictedRebounds: apiPlayer.predicted_rebounds || apiPlayer.predictedRebounds,
+        predictedAssists: apiPlayer.predicted_assists || apiPlayer.predictedAssists,
+        predictedFantasyPoints: apiPlayer.predicted_fantasy || apiPlayer.predictedFantasyPoints,
         pointsAccuracy: apiPlayer.pointsAccuracy,
         reboundsAccuracy: apiPlayer.reboundsAccuracy,
         assistsAccuracy: apiPlayer.assistsAccuracy,

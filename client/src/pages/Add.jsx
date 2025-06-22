@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Context } from "..";
 import { doc, getDoc, increment, updateDoc } from "firebase/firestore";
 
@@ -7,21 +7,26 @@ const Add = () => {
   const [addValue, setAddValue] = useState(0);
   const [adding, setAdding] = useState(false);
 
-  if (ctx.user) {
-    const docRef = doc(ctx.db, "Users", ctx.user.uid);
+  // Load user data from Firebase
+  useEffect(() => {
+    if (ctx.user) {
+      const docRef = doc(ctx.db, "Users", ctx.user.uid);
 
-    getDoc(docRef).then((docSnap) => {
-      console.log(docSnap);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-
-        ctx.setBearBucks(data.bearBucks);
-      } else {
-        // docSnap.data() will be undefined in this case
-        console.log("No such document!");
-      }
-    });
-  }
+      getDoc(docRef).then((docSnap) => {
+        console.log(docSnap);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          // Only set Bear Bucks if we don't already have a non-default value
+          if (ctx.bearBucks === 1500) {
+            ctx.setBearBucks(data.bearBucks || 1500);
+          }
+        } else {
+          // docSnap.data() will be undefined in this case
+          console.log("No such document!");
+        }
+      });
+    }
+  }, [ctx.user]); // Only run when user changes
 
   const addHandler = () => {
     if (!adding) {

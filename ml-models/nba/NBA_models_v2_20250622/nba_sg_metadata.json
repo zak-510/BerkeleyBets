@@ -1,0 +1,34 @@
+{
+  "position": "SG",
+  "validation_results": {
+    "position": "SG",
+    "train_samples": 316,
+    "test_samples": 79,
+    "points_mse": 48.66541176264684,
+    "points_r2": -0.4092269721702628,
+    "features": [
+      "rolling_fg_pct",
+      "rolling_3p_pct",
+      "rolling_ft_pct",
+      "rolling_minutes",
+      "rolling_usage",
+      "team_pace"
+    ],
+    "targets": [
+      "points",
+      "rebounds",
+      "assists",
+      "fantasy_score"
+    ]
+  },
+  "feature_names": [
+    "rolling_fg_pct",
+    "rolling_3p_pct",
+    "rolling_ft_pct",
+    "rolling_minutes",
+    "rolling_usage",
+    "team_pace"
+  ],
+  "created_date": "2025-06-22T06:06:39.097925",
+  "model_path": "NBA_models_v2_20250622/nba_sg_model_v2.pkl"
+}

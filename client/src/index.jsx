@@ -5,6 +5,7 @@ import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { BettingProvider } from "./contexts/BettingContext";
 
 import {
   getAuth,
@@ -17,8 +18,6 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { createContext, useEffect, useState } from "react";
 import Add from "./pages/Add";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -42,7 +41,7 @@ export const Context = createContext();
 
 const Index = () => {
   const [user, setUser] = useState(false);
-  const [bearBucks, setBearBucks] = useState(0);
+  const [bearBucks, setBearBucks] = useState(1500); // Initialize with default value
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -75,14 +74,16 @@ const Index = () => {
           setBearBucks: setBearBucks,
         }}
       >
-        <Nav />
-        <Routes>
-          <Route path="/" element={<App />} />
-          <Route path="/log-in" element={<LogIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/add" element={<Add />} />
-        </Routes>
+        <BettingProvider>
+          <Nav />
+          <Routes>
+            <Route path="/" element={<App />} />
+            <Route path="/log-in" element={<LogIn />} />
+            <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/add" element={<Add />} />
+          </Routes>
+        </BettingProvider>
       </Context.Provider>
     </div>
   );

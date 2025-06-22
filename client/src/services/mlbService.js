@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8082/api';
+const API_BASE_URL = 'http://localhost:3001/api/mlb';
 
 class MLBService {
   async fetchAllPlayers() {
@@ -40,9 +40,9 @@ class MLBService {
     }
   }
 
-  async fetchTopPlayers(position = 'ALL', limit = 20) {
+  async fetchTopPlayers(position = 'ALL', limit = 50) {
     try {
-      const response = await fetch(`${API_BASE_URL}/top/${position}/${limit}`);
+      const response = await fetch(`${API_BASE_URL}/players/top?limit=${limit}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -68,7 +68,7 @@ class MLBService {
 
   async healthCheck() {
     try {
-      const response = await fetch(`${API_BASE_URL}/health`);
+      const response = await fetch(`http://localhost:3001/health`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -82,44 +82,67 @@ class MLBService {
   // Helper method to format player data for the UI
   formatPlayerForUI(apiPlayer) {
     return {
-      id: apiPlayer.name.toLowerCase().replace(/\s+/g, '-'),
-      name: apiPlayer.name,
+      id: apiPlayer.player_name?.toLowerCase().replace(/\s+/g, '-') || apiPlayer.name?.toLowerCase().replace(/\s+/g, '-'),
+      name: apiPlayer.player_name || apiPlayer.name,
       position: apiPlayer.position,
-      playerType: apiPlayer.playerType,
+      playerType: apiPlayer.player_type || apiPlayer.playerType,
       stats: this.formatStatsForUI(apiPlayer),
       image: this.getPositionIcon(apiPlayer.position)
     };
   }
 
   formatStatsForUI(apiPlayer) {
-    if (apiPlayer.playerType === 'pitcher') {
+    const playerType = apiPlayer.player_type || apiPlayer.playerType;
+    
+    // Helper function to safely get numeric values
+    const safeNumber = (value, fallback = 0) => {
+      if (value === null || value === undefined || value === 'N/A' || isNaN(value)) {
+        return fallback;
+      }
+      return Number(value);
+    };
+
+    // Helper function to format display values
+    const formatDisplayValue = (value, decimals = 0) => {
+      const num = safeNumber(value);
+      return num > 0 ? num.toFixed(decimals) : 'TBD';
+    };
+
+    if (playerType === 'pitcher') {
+      const strikeouts = safeNumber(apiPlayer.projectedStrikeouts);
+      const innings = safeNumber(apiPlayer.projectedInningsPitched);
+      
       return {
-        predictedFantasyPoints: apiPlayer.predictedFantasyPoints,
-        fantasyConfidence: apiPlayer.fantasyConfidence,
-        projectedStrikeouts: apiPlayer.projectedStrikeouts,
-        projectedInningsPitched: apiPlayer.projectedInningsPitched,
-        strikeoutsConfidence: apiPlayer.strikeoutsConfidence,
-        inningsPitchedConfidence: apiPlayer.inningsPitchedConfidence,
+        predictedFantasyPoints: safeNumber(apiPlayer.predicted_fantasy_points || apiPlayer.predictedFantasyPoints),
+        fantasyConfidence: safeNumber(apiPlayer.confidence || apiPlayer.fantasyConfidence, 0.75),
+        projectedStrikeouts: strikeouts,
+        projectedInningsPitched: innings,
+        strikeoutsConfidence: safeNumber(apiPlayer.strikeoutsConfidence, 0.80),
+        inningsPitchedConfidence: safeNumber(apiPlayer.inningsPitchedConfidence, 0.75),
         displayStats: [
-          { label: 'Projected Strikeouts', value: apiPlayer.projectedStrikeouts },
-          { label: 'Projected Innings Pitched', value: apiPlayer.projectedInningsPitched }
+          { label: 'Projected Strikeouts', value: formatDisplayValue(strikeouts) },
+          { label: 'Projected Innings Pitched', value: formatDisplayValue(innings, 1) }
         ]
       };
     } else {
+      const hits = safeNumber(apiPlayer.projectedHits);
+      const runs = safeNumber(apiPlayer.projectedRuns);
+      const rbis = safeNumber(apiPlayer.projectedRBIs);
+      
       return {
-        predictedFantasyPoints: apiPlayer.predictedFantasyPoints,
-        fantasyConfidence: apiPlayer.fantasyConfidence,
-        projectedHits: apiPlayer.projectedHits,
-        projectedRuns: apiPlayer.projectedRuns,
-        projectedRBIs: apiPlayer.projectedRBIs,
-        battingAvg: apiPlayer.battingAvg,
-        onBasePct: apiPlayer.onBasePct,
-        sluggingPct: apiPlayer.sluggingPct,
-        skillConfidence: apiPlayer.skillConfidence,
+        predictedFantasyPoints: safeNumber(apiPlayer.predicted_fantasy_points || apiPlayer.predictedFantasyPoints),
+        fantasyConfidence: safeNumber(apiPlayer.confidence || apiPlayer.fantasyConfidence, 0.75),
+        projectedHits: hits,
+        projectedRuns: runs,
+        projectedRBIs: rbis,
+        battingAvg: safeNumber(apiPlayer.battingAvg || apiPlayer.batting_average_skill, 0.250),
+        onBasePct: safeNumber(apiPlayer.onBasePct || apiPlayer.on_base_percentage_skill, 0.320),
+        sluggingPct: safeNumber(apiPlayer.sluggingPct || apiPlayer.slugging_percentage_skill, 0.400),
+        skillConfidence: safeNumber(apiPlayer.skillConfidence, 0.80),
         displayStats: [
-          { label: 'Projected Hits', value: apiPlayer.projectedHits },
-          { label: 'Projected Runs', value: apiPlayer.projectedRuns },
-          { label: 'Projected RBIs', value: apiPlayer.projectedRBIs }
+          { label: 'Projected Hits', value: formatDisplayValue(hits) },
+          { label: 'Projected Runs', value: formatDisplayValue(runs) },
+          { label: 'Projected RBIs', value: formatDisplayValue(rbis) }
         ]
       };
     }

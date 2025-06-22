@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = 'http://localhost:3001/api/nfl';
 
 class NFLService {
   async fetchAllPlayers() {
@@ -40,9 +40,9 @@ class NFLService {
     }
   }
 
-  async fetchTopPlayers(position = 'ALL', limit = 20) {
+  async fetchTopPlayers(position = 'ALL', limit = 50) {
     try {
-      const response = await fetch(`${API_BASE_URL}/top/${position}/${limit}`);
+      const response = await fetch(`${API_BASE_URL}/players/top?limit=${limit}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -68,7 +68,7 @@ class NFLService {
 
   async healthCheck() {
     try {
-      const response = await fetch(`${API_BASE_URL}/health`);
+      const response = await fetch(`http://localhost:3001/health`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -81,13 +81,13 @@ class NFLService {
 
   // Helper method to format player data for the UI
   formatPlayerForUI(apiPlayer) {
-    return {
-      id: apiPlayer.name.toLowerCase().replace(/\s+/g, '-'),
-      name: apiPlayer.name,
-      team: this.getTeamByPosition(apiPlayer.position), // We'll need to map this
+    const basePlayer = {
+      id: apiPlayer.player_name?.toLowerCase().replace(/\s+/g, '-') || apiPlayer.name?.toLowerCase().replace(/\s+/g, '-'),
+      name: apiPlayer.player_name || apiPlayer.name,
+      team: apiPlayer.recent_team || this.getTeamByPosition(apiPlayer.position),
       position: apiPlayer.position,
       stats: {
-        predictedPoints: apiPlayer.predictedPoints,
+        predictedPoints: apiPlayer.predicted_fantasy_points || apiPlayer.predictedPoints,
         actualPoints: apiPlayer.actualPoints,
         confidence: apiPlayer.confidence,
         accuracy: apiPlayer.accuracy,
@@ -95,6 +95,21 @@ class NFLService {
       },
       image: this.getPositionIcon(apiPlayer.position)
     };
+
+    // Add all additional stats from the API response directly to the base player object
+    // This ensures all position-specific stats are available for the PlayerProfile component
+    const additionalStats = { ...apiPlayer };
+    delete additionalStats.player_id;
+    delete additionalStats.player_name;
+    delete additionalStats.position;
+    delete additionalStats.recent_team;
+    delete additionalStats.predicted_fantasy_points;
+    delete additionalStats.confidence;
+
+    // Merge additional stats into the player object
+    Object.assign(basePlayer, additionalStats);
+
+    return basePlayer;
   }
 
   getPositionIcon(position) {

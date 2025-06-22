@@ -10,9 +10,10 @@ import nbaLogo from "../assets/nba.png";
 import ncaaLogo from "../assets/ncaa.png";
 import nflLogo from "../assets/nfl.webp";
 import mlbLogo from "../assets/mlb.png";
+import PlayerProfile from "../components/PlayerProfile";
+import BettingPortfolio from "../components/BettingPortfolio";
 
 const Dashboard = () => {
-  const [bearBucks, setBearBucks] = useState(1500);
   const [selectedSport, setSelectedSport] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [nflPlayers, setNflPlayers] = useState([]);
@@ -23,9 +24,12 @@ const Dashboard = () => {
   const [nflApiHealthy, setNflApiHealthy] = useState(false);
   const [nbaApiHealthy, setNbaApiHealthy] = useState(false);
   const [mlbApiHealthy, setMlbApiHealthy] = useState(false);
-  const [activeBets, setActiveBets] = useState(12);
-  const [wins, setWins] = useState(7);
-  const [losses, setLosses] = useState(3);
+  const [activeBets, setActiveBets] = useState(0);
+  const [wins, setWins] = useState(0);
+  const [losses, setLosses] = useState(0);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [showPlayerProfile, setShowPlayerProfile] = useState(false);
+  const [showBettingPortfolio, setShowBettingPortfolio] = useState(false);
 
   const ctx = useContext(Context);
   const navigate = useNavigate();
@@ -33,28 +37,33 @@ const Dashboard = () => {
   const sports = [
     { id: "nfl", name: "NFL", icon: nflLogo },
     { id: "nba", name: "NBA", icon: nbaLogo },
-    { id: "ncaa", name: "NCAA", icon: ncaaLogo },
     { id: "mlb", name: "MLB", icon: mlbLogo },
   ];
 
-  if (ctx.user) {
-    const docRef = doc(ctx.db, "Users", ctx.user.uid);
+  // Load user data from Firebase
+  useEffect(() => {
+    if (ctx.user) {
+      const docRef = doc(ctx.db, "Users", ctx.user.uid);
 
-    getDoc(docRef).then((docSnap) => {
-      console.log(docSnap);
-      if (docSnap.exists()) {
-        console.log("Document data:", docSnap.data());
-        const data = docSnap.data();
-        setActiveBets(data.activeBets);
-        setWins(data.wins);
-        setLosses(data.losses);
-        ctx.setBearBucks(data.bearBucks);
-      } else {
-        // docSnap.data() will be undefined in this case
-        console.log("No such document!");
-      }
-    });
-  }
+      getDoc(docRef).then((docSnap) => {
+        console.log(docSnap);
+        if (docSnap.exists()) {
+          console.log("Document data:", docSnap.data());
+          const data = docSnap.data();
+          setActiveBets(data.activeBets);
+          setWins(data.wins);
+          setLosses(data.losses);
+          // Only set Bear Bucks if we don't already have a value (to avoid overriding betting changes)
+          if (ctx.bearBucks === 1500) {
+            ctx.setBearBucks(data.bearBucks || 1500);
+          }
+        } else {
+          // docSnap.data() will be undefined in this case
+          console.log("No such document!");
+        }
+      });
+    }
+  }, [ctx.user]); // Only run when user changes
 
   // Check API health on component mount
   useEffect(() => {
@@ -357,6 +366,18 @@ const Dashboard = () => {
 
   const filteredTeams = getFilteredTeams();
 
+  // Handle player card click
+  const handlePlayerClick = (player) => {
+    setSelectedPlayer(player);
+    setShowPlayerProfile(true);
+  };
+
+  // Handle closing player profile
+  const handleClosePlayerProfile = () => {
+    setSelectedPlayer(null);
+    setShowPlayerProfile(false);
+  };
+
   const renderPlayerCard = (player) => {
     const getStatDisplay = () => {
       switch (selectedSport) {
@@ -430,7 +451,8 @@ const Dashboard = () => {
     return (
       <div
         key={player.id}
-        className="bg-slate-700/30 rounded-xl border border-slate-600/50 hover:border-slate-500/70 transition-all cursor-pointer group p-4"
+        onClick={() => handlePlayerClick(player)}
+        className="bg-slate-700/30 rounded-xl border border-slate-600/50 hover:border-slate-500/70 transition-all cursor-pointer group p-4 hover:bg-slate-700/50"
       >
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center">
@@ -483,6 +505,17 @@ const Dashboard = () => {
       ></div>
 
       <div className="relative z-10 p-6">
+        {/* My Bets Button */}
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={() => setShowBettingPortfolio(true)}
+            className="px-4 py-2 bg-gradient-to-r from-green-600 to-yellow-500 text-white rounded-lg font-medium hover:from-green-700 hover:to-yellow-600 transition-all flex items-center gap-2"
+          >
+            <span>📊</span>
+            My Bets
+          </button>
+        </div>
+
         {/* API Status Indicator */}
         {(selectedSport === "nfl" || selectedSport === "nba") && (
           <div className="flex justify-center mb-4">
@@ -607,68 +640,28 @@ const Dashboard = () => {
         <div className="max-w-4xl mx-auto">
           <div className="bg-slate-800/30 backdrop-blur-lg rounded-2xl border border-slate-700/50 p-6">
             {selectedSport ? (
+              // Players Section
               <>
-                {selectedSport === "ncaa" ? (
-                  // NCAA Teams Section
-                  <>
-                    <div className="space-y-4">
-                      {filteredTeams.map((team) => (
-                        <div
-                          key={team.id}
-                          className="flex items-center p-4 bg-slate-700/30 rounded-xl border border-slate-600/50 hover:border-slate-500/70 transition-all cursor-pointer group"
-                        >
-                          <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-yellow-500 rounded-lg flex items-center justify-center mr-4">
-                            <span className="text-xl">{team.logo}</span>
-                          </div>
-                          <div className="flex-1">
-                            <h3
-                              className={`text-xl font-semibold ${team.color} group-hover:text-white transition-colors`}
-                            >
-                              {team.name}
-                            </h3>
-                          </div>
-                          <div className="text-slate-400 group-hover:text-white transition-colors">
-                            <svg
-                              className="w-6 h-6"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 5l7 7-7 7"
-                              />
-                            </svg>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  // Players Section
-                  <>
-                    {error && (
-                      <div className="mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
-                        <p className="text-red-400 text-center">{error}</p>
-                        {(selectedSport === "nfl" ||
-                          selectedSport === "nba") && (
-                          <button
-                            onClick={
-                              selectedSport === "nfl"
-                                ? loadNFLPlayers
-                                : loadNBAPlayers
-                            }
-                            className="mt-2 mx-auto block px-4 py-2 bg-red-500/30 hover:bg-red-500/50 rounded-lg text-red-300 transition-colors"
-                          >
-                            Retry
-                          </button>
-                        )}
-                      </div>
+                {error && (
+                  <div className="mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
+                    <p className="text-red-400 text-center">{error}</p>
+                    {(selectedSport === "nfl" ||
+                      selectedSport === "nba") && (
+                      <button
+                        onClick={
+                          selectedSport === "nfl"
+                            ? loadNFLPlayers
+                            : loadNBAPlayers
+                        }
+                        className="mt-2 mx-auto block px-4 py-2 bg-red-500/30 hover:bg-red-500/50 rounded-lg text-red-300 transition-colors"
+                      >
+                        Retry
+                      </button>
                     )}
+                  </div>
+                )}
 
-                    <div className="space-y-4">
+                <div className="space-y-4">
                       {loading ? (
                         <div className="text-center py-8">
                           <div className="animate-spin w-8 h-8 border-4 border-yellow-400 border-t-transparent rounded-full mx-auto mb-4"></div>
@@ -703,13 +696,15 @@ const Dashboard = () => {
 
                     {/* Load More Players Button */}
                     {filteredPlayers.length > 0 &&
-                      (selectedSport === "nfl" || selectedSport === "nba") && (
+                      (selectedSport === "nfl" || selectedSport === "nba" || selectedSport === "mlb") && (
                         <div className="mt-6 text-center">
                           <button
                             onClick={
                               selectedSport === "nfl"
                                 ? loadNFLPlayers
-                                : loadNBAPlayers
+                                : selectedSport === "nba"
+                                ? loadNBAPlayers
+                                : loadMLBPlayers
                             }
                             className="px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white rounded-lg font-medium hover:from-blue-700 hover:to-yellow-600 transition-all"
                           >
@@ -718,8 +713,6 @@ const Dashboard = () => {
                         </div>
                       )}
                   </>
-                )}
-              </>
             ) : (
               <div className="text-center py-8">
                 <p className="text-slate-300 text-lg">
@@ -730,27 +723,48 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="max-w-4xl mx-auto mt-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-slate-800/30 backdrop-blur-lg rounded-xl border border-slate-700/50 p-4 text-center">
-              <div className="text-2xl font-bold text-green-400">
-                {activeBets}
+        {/* Quick Stats - Only show if user has actual betting activity */}
+        {activeBets > 0 && (
+          <div className="max-w-4xl mx-auto mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-slate-800/30 backdrop-blur-lg rounded-xl border border-slate-700/50 p-4 text-center">
+                <div className="text-2xl font-bold text-green-400">
+                  {activeBets}
+                </div>
+                <div className="text-slate-300 text-sm">Active Bets</div>
               </div>
-              <div className="text-slate-300 text-sm">Active Bets</div>
-            </div>
-            <div className="bg-slate-800/30 backdrop-blur-lg rounded-xl border border-slate-700/50 p-4 text-center">
-              <div className="text-2xl font-bold text-blue-400">
-                {wins + losses < 1 ? 0 : (100 * wins) / (wins + losses)}%
+              <div className="bg-slate-800/30 backdrop-blur-lg rounded-xl border border-slate-700/50 p-4 text-center">
+                <div className="text-2xl font-bold text-blue-400">
+                  {wins + losses < 1 ? 0 : Math.round((100 * wins) / (wins + losses))}%
+                </div>
+                <div className="text-slate-300 text-sm">Win Rate</div>
               </div>
-              <div className="text-slate-300 text-sm">Win Rate</div>
+              <div className="bg-slate-800/30 backdrop-blur-lg rounded-xl border border-slate-700/50 p-4 text-center">
+                <div className="text-2xl font-bold text-yellow-400">
+                  {wins}/{wins + losses}
+                </div>
+                <div className="text-slate-300 text-sm">Record</div>
+              </div>
             </div>
-            {/* <div className="bg-slate-800/30 backdrop-blur-lg rounded-xl border border-slate-700/50 p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-400">+$342</div>
-              <div className="text-slate-300 text-sm">This Week</div>
-            </div> */}
           </div>
-        </div>
+        )}
+
+        {/* Player Profile Modal */}
+        {showPlayerProfile && selectedPlayer && (
+          <PlayerProfile
+            player={selectedPlayer}
+            sport={selectedSport}
+            onClose={handleClosePlayerProfile}
+          />
+        )}
+
+        {/* Betting Portfolio Modal */}
+        {showBettingPortfolio && (
+          <BettingPortfolio
+            isOpen={showBettingPortfolio}
+            onClose={() => setShowBettingPortfolio(false)}
+          />
+        )}
       </div>
     </div>
   );
