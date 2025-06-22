@@ -3,7 +3,7 @@ import Fuse from "fuse.js";
 import nflService from "../services/nflService";
 import nbaService from "../services/nbaService";
 import mlbService from "../services/mlbService";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { Context } from "..";
 import { useNavigate } from "react-router";
 import nbaLogo from "../assets/nba.png";
@@ -45,22 +45,39 @@ const Dashboard = () => {
     if (ctx.user) {
       const docRef = doc(ctx.db, "Users", ctx.user.uid);
 
-      getDoc(docRef).then((docSnap) => {
+      getDoc(docRef).then(async (docSnap) => {
         console.log(docSnap);
         if (docSnap.exists()) {
           console.log("Document data:", docSnap.data());
           const data = docSnap.data();
-          setActiveBets(data.activeBets);
-          setWins(data.wins);
-          setLosses(data.losses);
+          setActiveBets(data.activeBets || 0);
+          setWins(data.wins || 0);
+          setLosses(data.losses || 0);
           // Only set Bear Bucks if we don't already have a value (to avoid overriding betting changes)
           if (ctx.bearBucks === 1500) {
             ctx.setBearBucks(data.bearBucks || 1500);
           }
         } else {
-          // docSnap.data() will be undefined in this case
-          console.log("No such document!");
+          // Create new user document with default values
+          console.log("Creating new user document...");
+          try {
+            await setDoc(docRef, {
+              bearBucks: 1500,
+              activeBets: 0,
+              wins: 0,
+              losses: 0
+            });
+            setActiveBets(0);
+            setWins(0);
+            setLosses(0);
+            ctx.setBearBucks(1500);
+            console.log("User document created successfully");
+          } catch (error) {
+            console.error("Error creating user document:", error);
+          }
         }
+      }).catch((error) => {
+        console.error("Error loading user data:", error);
       });
     }
   }, [ctx.user]); // Only run when user changes

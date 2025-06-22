@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { Context } from "..";
-import { doc, getDoc, increment, updateDoc } from "firebase/firestore";
+import { doc, getDoc, increment, updateDoc, setDoc } from "firebase/firestore";
 
 const Add = () => {
   const ctx = useContext(Context);
@@ -28,15 +28,37 @@ const Add = () => {
     }
   }, [ctx.user]); // Only run when user changes
 
-  const addHandler = () => {
+  const addHandler = async () => {
     if (!adding) {
       setAdding(true);
       const userRef = doc(ctx.db, "Users", ctx.user.uid);
-      updateDoc(userRef, { bearBucks: increment(addValue) }).then(() => {
-        ctx.setBearBucks(Number(ctx.bearBucks) + Number(addValue));
+      
+      try {
+        // First check if document exists
+        const docSnap = await getDoc(userRef);
+        
+        if (!docSnap.exists()) {
+          // Create document with initial Bear Bucks if it doesn't exist
+          await setDoc(userRef, {
+            bearBucks: 1500 + Number(addValue),
+            activeBets: 0,
+            wins: 0,
+            losses: 0
+          });
+          ctx.setBearBucks(1500 + Number(addValue));
+        } else {
+          // Update existing document
+          await updateDoc(userRef, { bearBucks: increment(addValue) });
+          ctx.setBearBucks(Number(ctx.bearBucks) + Number(addValue));
+        }
+        
         setAdding(false);
-        console.log("updated");
-      });
+        console.log("Bear Bucks updated successfully");
+      } catch (error) {
+        console.error("Error updating Bear Bucks:", error);
+        alert(`Error updating Bear Bucks: ${error.message}. Please check Firestore permissions.`);
+        setAdding(false);
+      }
     }
   };
 
