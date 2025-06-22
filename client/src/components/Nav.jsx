@@ -16,7 +16,7 @@ const Nav = () => {
           <img className="w-10 object-contain" src={CalLogo}></img>
           <Link
             className="text-4xl font-instrument-serif text-yellow-500"
-            to="/"
+            to="/dashboard"
           >
             BerkeleyBets
           </Link>
