@@ -28,7 +28,7 @@ const Dashboard = () => {
     { id: "mlb", name: "MLB", icon: "⚾" },
   ];
 
-  const docRef = doc(ctx.db, "Users", "P9sltO4r1DYRySceULuVNBKA4og1");
+  const docRef = doc(ctx.db, "Users", ctx.user.uid);
 
   getDoc(docRef).then((docSnap) => {
     console.log(docSnap);

@@ -81,7 +81,7 @@ const SignUp = ({ onSignUp }) => {
         const user = userCredential.user;
         ctx.setUser(user);
         setDoc(doc(ctx.db, "Users", user.uid), {
-          activeBets: 25,
+          activeBets: 0,
           bearBucks: 1500,
           losses: 0,
           wins: 0,
