@@ -1,10 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Fuse from 'fuse.js';
+import nflService from '../services/nflService';
 
 const Dashboard = () => {
   const [bearBucks, setBearBucks] = useState(1500);
   const [selectedSport, setSelectedSport] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [nflPlayers, setNflPlayers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [apiHealthy, setApiHealthy] = useState(false);
 
   const sports = [
     { id: 'nfl', name: 'NFL', icon: '🏈' },
@@ -13,36 +18,72 @@ const Dashboard = () => {
     { id: 'mlb', name: 'MLB', icon: '⚾' }
   ];
 
-  // Sample player data - you can replace with real API data
-  const players = {
-    nfl: [
-      {
-        id: 'mahomes',
-        name: 'Patrick Mahomes',
-        team: 'Kansas City Chiefs',
-        position: 'QB',
-        stats: {
-          passingYards: 4183,
-          touchdowns: 31,
-          interceptions: 8,
-          completionRate: 66.3
-        },
-        image: '🏈'
-      },
-      {
-        id: 'mccaffrey',
-        name: 'Christian McCaffrey',
-        team: 'San Francisco 49ers',
-        position: 'RB',
-        stats: {
-          rushingYards: 1459,
-          touchdowns: 14,
-          receptions: 67,
-          receivingYards: 564
-        },
-        image: '🏈'
+  // Check API health on component mount
+  useEffect(() => {
+    const checkApiHealth = async () => {
+      try {
+        await nflService.healthCheck();
+        setApiHealthy(true);
+      } catch (error) {
+        console.error('API health check failed:', error);
+        setApiHealthy(false);
       }
-    ],
+    };
+    
+    checkApiHealth();
+  }, []);
+
+  // Load NFL players when NFL sport is selected
+  useEffect(() => {
+    if (selectedSport === 'nfl' && apiHealthy) {
+      loadNFLPlayers();
+    }
+  }, [selectedSport, apiHealthy]);
+
+  const loadNFLPlayers = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await nflService.fetchTopPlayers('ALL', 50);
+      const formattedPlayers = response.players.map(player => 
+        nflService.formatPlayerForUI(player)
+      );
+      setNflPlayers(formattedPlayers);
+    } catch (err) {
+      setError('Failed to load NFL players. Make sure the API server is running.');
+      console.error('Error loading NFL players:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle search for NFL players
+  const handleNFLSearch = async (query) => {
+    if (!query.trim()) {
+      loadNFLPlayers(); // Reset to all players
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await nflService.searchPlayers(query);
+      const formattedPlayers = response.players.map(player => 
+        nflService.formatPlayerForUI(player)
+      );
+      setNflPlayers(formattedPlayers);
+    } catch (err) {
+      setError('Failed to search players.');
+      console.error('Error searching NFL players:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Sample player data for other sports
+  const players = {
     nba: [
       {
         id: 'jokic',
@@ -118,18 +159,18 @@ const Dashboard = () => {
     }
   ];
 
-  // Fuzzy search configuration
+  // Fuzzy search configuration for non-NFL sports
   const fuseOptions = {
-    keys: ['name', 'team', 'position'], // Fields to search
-    threshold: 0.4, // 0 = exact match, 1 = match anything
-    distance: 100,  // How far to search
+    keys: ['name', 'team', 'position'],
+    threshold: 0.4,
+    distance: 100,
     includeScore: true,
     minMatchCharLength: 2
   };
 
-  // Create fuzzy search instance
+  // Create fuzzy search instance for non-NFL sports
   const fuse = useMemo(() => {
-    if (selectedSport && players[selectedSport]) {
+    if (selectedSport && selectedSport !== 'nfl' && players[selectedSport]) {
       return new Fuse(players[selectedSport], fuseOptions);
     }
     return null;
@@ -139,10 +180,14 @@ const Dashboard = () => {
   const filteredPlayers = useMemo(() => {
     if (!selectedSport || selectedSport === 'ncaa') return [];
     
+    if (selectedSport === 'nfl') {
+      return nflPlayers; // NFL players are already filtered by the API
+    }
+    
     const currentPlayers = players[selectedSport] || [];
     
     if (!searchTerm.trim()) {
-      return currentPlayers; // Show all if no search term
+      return currentPlayers;
     }
     
     if (fuse) {
@@ -151,15 +196,32 @@ const Dashboard = () => {
     }
     
     return currentPlayers;
-  }, [selectedSport, searchTerm, fuse, players]);
+  }, [selectedSport, searchTerm, fuse, players, nflPlayers]);
+
+  // Debounce NFL search
+  useEffect(() => {
+    if (selectedSport === 'nfl' && searchTerm !== '') {
+      const timeoutId = setTimeout(() => {
+        handleNFLSearch(searchTerm);
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
+    } else if (selectedSport === 'nfl' && searchTerm === '') {
+      loadNFLPlayers();
+    }
+  }, [searchTerm, selectedSport]);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+  };
 
   // Filter teams based on selected sport
   const getFilteredTeams = () => {
     if (selectedSport === 'ncaa') {
-      // For NCAA, only show Berkeley teams
       return teams.filter(team => team.id === 'cal');
     } else if (selectedSport) {
-      // For other sports, show all teams (you can expand this with more teams for other sports)
       return teams;
     }
     return [];
@@ -174,20 +236,12 @@ const Dashboard = () => {
           return (
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">Pass Yards</div>
-                <div className="text-white font-semibold">{player.stats.passingYards?.toLocaleString() || player.stats.rushingYards?.toLocaleString()}</div>
+                <div className="text-slate-400">Predicted Fantasy Points 2025 Season</div>
+                <div className="text-white font-semibold">{player.stats.predictedPoints?.toFixed(1)}</div>
               </div>
               <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">TDs</div>
-                <div className="text-white font-semibold">{player.stats.touchdowns}</div>
-              </div>
-              <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">{player.position === 'QB' ? 'INTs' : 'Receptions'}</div>
-                <div className="text-white font-semibold">{player.stats.interceptions || player.stats.receptions}</div>
-              </div>
-              <div className="bg-slate-700/50 rounded p-2">
-                <div className="text-slate-400">{player.position === 'QB' ? 'Comp %' : 'Rec Yards'}</div>
-                <div className="text-white font-semibold">{player.stats.completionRate || player.stats.receivingYards?.toLocaleString()}</div>
+                <div className="text-slate-400">Accuracy</div>
+                <div className="text-white font-semibold">{player.stats.accuracy}%</div>
               </div>
             </div>
           );
@@ -276,6 +330,19 @@ const Dashboard = () => {
       }}></div>
 
       <div className="relative z-10 p-6">
+        {/* API Status Indicator */}
+        {selectedSport === 'nfl' && (
+          <div className="flex justify-center mb-4">
+            <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+              apiHealthy 
+                ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                : 'bg-red-500/20 text-red-400 border border-red-500/30'
+            }`}>
+              {apiHealthy ? '🟢 NFL API Connected' : '🔴 NFL API Disconnected'}
+            </div>
+          </div>
+        )}
+
         {/* Bear Bucks Balance */}
         <div className="flex justify-end mb-8">
           <div className="text-right">
@@ -292,7 +359,8 @@ const Dashboard = () => {
                 key={sport.id}
                 onClick={() => {
                   setSelectedSport(sport.id);
-                  setSearchTerm(''); // Clear search when switching sports
+                  setSearchTerm('');
+                  setError(null);
                 }}
                 className={`w-20 h-20 rounded-xl border-2 flex items-center justify-center transition-all hover:scale-105 ${
                   selectedSport === sport.id
@@ -317,7 +385,7 @@ const Dashboard = () => {
                 type="text"
                 placeholder={`Search ${selectedSport.toUpperCase()} players...`}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="w-full px-4 py-3 pl-12 bg-slate-800/30 backdrop-blur-lg rounded-xl border border-slate-700/50 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
               />
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400">
@@ -327,7 +395,12 @@ const Dashboard = () => {
               </div>
               {searchTerm && (
                 <button
-                  onClick={() => setSearchTerm('')}
+                  onClick={() => {
+                    setSearchTerm('');
+                    if (selectedSport === 'nfl') {
+                      loadNFLPlayers();
+                    }
+                  }}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -363,19 +436,14 @@ const Dashboard = () => {
                           key={team.id}
                           className="flex items-center p-4 bg-slate-700/30 rounded-xl border border-slate-600/50 hover:border-slate-500/70 transition-all cursor-pointer group"
                         >
-                          {/* Team Logo */}
                           <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-yellow-500 rounded-lg flex items-center justify-center mr-4">
                             <span className="text-xl">{team.logo}</span>
                           </div>
-
-                          {/* Team Name */}
                           <div className="flex-1">
                             <h3 className={`text-xl font-semibold ${team.color} group-hover:text-white transition-colors`}>
                               {team.name}
                             </h3>
                           </div>
-
-                          {/* Action Arrow */}
                           <div className="text-slate-400 group-hover:text-white transition-colors">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -386,10 +454,29 @@ const Dashboard = () => {
                     </div>
                   </>
                 ) : (
-                  // Players Section with Search Results
+                  // Players Section
                   <>
+                    {error && (
+                      <div className="mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
+                        <p className="text-red-400 text-center">{error}</p>
+                        {selectedSport === 'nfl' && (
+                          <button 
+                            onClick={loadNFLPlayers}
+                            className="mt-2 mx-auto block px-4 py-2 bg-red-500/30 hover:bg-red-500/50 rounded-lg text-red-300 transition-colors"
+                          >
+                            Retry
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    
                     <div className="space-y-4">
-                      {filteredPlayers.length > 0 ? (
+                      {loading ? (
+                        <div className="text-center py-8">
+                          <div className="animate-spin w-8 h-8 border-4 border-yellow-400 border-t-transparent rounded-full mx-auto mb-4"></div>
+                          <p className="text-slate-300 text-lg">Loading players...</p>
+                        </div>
+                      ) : filteredPlayers.length > 0 ? (
                         filteredPlayers.map(renderPlayerCard)
                       ) : searchTerm ? (
                         <div className="text-center py-8">
@@ -398,17 +485,27 @@ const Dashboard = () => {
                         </div>
                       ) : (
                         <div className="text-center py-8">
-                          <p className="text-slate-300 text-lg">Loading players...</p>
+                          <p className="text-slate-300 text-lg">
+                            {selectedSport === 'nfl' && !apiHealthy 
+                              ? 'NFL API is not available. Please start the API server.' 
+                              : 'Select a sport to view available players'
+                            }
+                          </p>
                         </div>
                       )}
                     </div>
                     
-                    {/* Add More Players Button */}
-                    <div className="mt-6 text-center">
-                      <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white rounded-lg font-medium hover:from-blue-700 hover:to-yellow-600 transition-all">
-                        + Load More Players
-                      </button>
-                    </div>
+                    {/* Load More Players Button */}
+                    {filteredPlayers.length > 0 && selectedSport === 'nfl' && (
+                      <div className="mt-6 text-center">
+                        <button 
+                          onClick={loadNFLPlayers}
+                          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white rounded-lg font-medium hover:from-blue-700 hover:to-yellow-600 transition-all"
+                        >
+                          🔄 Refresh Players
+                        </button>
+                      </div>
+                    )}
                   </>
                 )}
               </>

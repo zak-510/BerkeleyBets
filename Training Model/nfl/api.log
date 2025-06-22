@@ -1,0 +1,18 @@
+✅ Loaded 425 players from inference_results.csv
+🏈 Starting NFL Predictions API...
+📊 Loaded 425 players
+🚀 API running on http://localhost:5001
+
+Available endpoints:
+  GET /api/players - All players
+  GET /api/players/<position> - Players by position
+  GET /api/player/<name> - Specific player
+  GET /api/search?q=<query> - Search players
+  GET /api/stats - Model statistics
+  GET /api/top/<position>/<limit> - Top N players
+  GET /api/health - Health check
+ * Serving Flask app 'nfl_api'
+ * Debug mode: off
+Address already in use
+Port 5000 is in use by another program. Either identify and stop that program, or start the server with a different port.
+On macOS, try disabling the 'AirPlay Receiver' service from System Preferences -> General -> AirDrop & Handoff.
