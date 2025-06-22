@@ -10,6 +10,10 @@ const SignUp = ({ onSignUp }) => {
   const auth = getAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (ctx.user) navigate("/dashboard");
+  }, []);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",

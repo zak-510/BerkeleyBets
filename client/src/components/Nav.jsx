@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import CalLogo from "../assets/callogo.png";
 import { useContext } from "react";
 import { getAuth, signOut } from "firebase/auth";
@@ -7,6 +7,7 @@ import { Context } from "..";
 const Nav = () => {
   const ctx = useContext(Context);
   const auth = getAuth();
+  const navigate = useNavigate();
 
   return (
     <div className=" index w-full flex items-center border-b border-white/25">
@@ -37,6 +38,7 @@ const Nav = () => {
               <button
                 onClick={() => {
                   signOut(auth);
+                  navigate("/log-in");
                 }}
               >
                 Log out

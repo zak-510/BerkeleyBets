@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { Link, useNavigate } from "react-router";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
@@ -13,6 +13,10 @@ const LogIn = ({ onLogin }) => {
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    if (ctx.user) navigate("/dashboard");
+  }, []);
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

@@ -4,6 +4,7 @@ import nflService from "../services/nflService";
 import nbaService from "../services/nbaService";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { Context } from "..";
+import { useNavigate } from "react-router";
 
 const Dashboard = () => {
   const [bearBucks, setBearBucks] = useState(1500);
@@ -20,6 +21,7 @@ const Dashboard = () => {
   const [losses, setLosses] = useState(3);
 
   const ctx = useContext(Context);
+  const navigate = useNavigate();
 
   const sports = [
     { id: "nfl", name: "NFL", icon: "🏈" },
@@ -49,6 +51,8 @@ const Dashboard = () => {
 
   // Check API health on component mount
   useEffect(() => {
+    if (!ctx.user) navigate("/log-in");
+
     const checkApiHealth = async () => {
       // Check NFL API
       try {
