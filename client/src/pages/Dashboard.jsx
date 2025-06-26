@@ -82,7 +82,7 @@ const Dashboard = () => {
     }
   }, [ctx.user]); // Only run when user changes
 
-  // Check API health on component mount
+  // Check API health on component mount and periodically
   useEffect(() => {
     if (!ctx.user) navigate("/log-in");
 
@@ -115,7 +115,14 @@ const Dashboard = () => {
       }
     };
 
+    // Initial health check
     checkApiHealth();
+    
+    // Periodic health check every 30 seconds
+    const healthCheckInterval = setInterval(checkApiHealth, 30000);
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(healthCheckInterval);
   }, []);
 
   // Load players when sport is selected
@@ -139,11 +146,15 @@ const Dashboard = () => {
         nflService.formatPlayerForUI(player)
       );
       setNflPlayers(formattedPlayers);
+      // If successful, mark API as healthy
+      setNflApiHealthy(true);
     } catch (err) {
       setError(
         "Failed to load NFL players. Make sure the API server is running."
       );
       console.error("Error loading NFL players:", err);
+      // If failed, mark API as unhealthy
+      setNflApiHealthy(false);
     } finally {
       setLoading(false);
     }
@@ -159,11 +170,15 @@ const Dashboard = () => {
         nbaService.formatPlayerForUI(player)
       );
       setNbaPlayers(formattedPlayers);
+      // If successful, mark API as healthy
+      setNbaApiHealthy(true);
     } catch (err) {
       setError(
         "Failed to load NBA players. Make sure the API server is running."
       );
       console.error("Error loading NBA players:", err);
+      // If failed, mark API as unhealthy
+      setNbaApiHealthy(false);
     } finally {
       setLoading(false);
     }
@@ -179,11 +194,15 @@ const Dashboard = () => {
         mlbService.formatPlayerForUI(player)
       );
       setMlbPlayers(formattedPlayers);
+      // If successful, mark API as healthy
+      setMlbApiHealthy(true);
     } catch (err) {
       setError(
         "Failed to load MLB players. Make sure the API server is running."
       );
       console.error("Error loading MLB players:", err);
+      // If failed, mark API as unhealthy
+      setMlbApiHealthy(false);
     } finally {
       setLoading(false);
     }
@@ -205,9 +224,13 @@ const Dashboard = () => {
         nflService.formatPlayerForUI(player)
       );
       setNflPlayers(formattedPlayers);
+      // If successful, mark API as healthy
+      setNflApiHealthy(true);
     } catch (err) {
       setError("Failed to search players.");
       console.error("Error searching NFL players:", err);
+      // If failed, mark API as unhealthy
+      setNflApiHealthy(false);
     } finally {
       setLoading(false);
     }
@@ -229,9 +252,13 @@ const Dashboard = () => {
         nbaService.formatPlayerForUI(player)
       );
       setNbaPlayers(formattedPlayers);
+      // If successful, mark API as healthy
+      setNbaApiHealthy(true);
     } catch (err) {
       setError("Failed to search players.");
       console.error("Error searching NBA players:", err);
+      // If failed, mark API as unhealthy
+      setNbaApiHealthy(false);
     } finally {
       setLoading(false);
     }
@@ -253,9 +280,13 @@ const Dashboard = () => {
         mlbService.formatPlayerForUI(player)
       );
       setMlbPlayers(formattedPlayers);
+      // If successful, mark API as healthy
+      setMlbApiHealthy(true);
     } catch (err) {
       setError("Failed to search players.");
       console.error("Error searching MLB players:", err);
+      // If failed, mark API as unhealthy
+      setMlbApiHealthy(false);
     } finally {
       setLoading(false);
     }
@@ -534,11 +565,13 @@ const Dashboard = () => {
         </div>
 
         {/* API Status Indicator */}
-        {(selectedSport === "nfl" || selectedSport === "nba") && (
+        {(selectedSport === "nfl" || selectedSport === "nba" || selectedSport === "mlb") && (
           <div className="flex justify-center mb-4">
             <div
               className={`px-3 py-1 rounded-full text-xs font-medium ${
-                (selectedSport === "nfl" ? nflApiHealthy : nbaApiHealthy)
+                (selectedSport === "nfl" ? nflApiHealthy : 
+                 selectedSport === "nba" ? nbaApiHealthy : 
+                 selectedSport === "mlb" ? mlbApiHealthy : false)
                   ? "bg-green-500/20 text-green-400 border border-green-500/30"
                   : "bg-red-500/20 text-red-400 border border-red-500/30"
               }`}
@@ -547,9 +580,15 @@ const Dashboard = () => {
                 ? nflApiHealthy
                   ? "🟢 NFL API Connected"
                   : "🔴 NFL API Disconnected"
-                : nbaApiHealthy
-                ? "🟢 NBA API Connected"
-                : "🔴 NBA API Disconnected"}
+                : selectedSport === "nba"
+                ? nbaApiHealthy
+                  ? "🟢 NBA API Connected"
+                  : "🔴 NBA API Disconnected"
+                : selectedSport === "mlb"
+                ? mlbApiHealthy
+                  ? "🟢 MLB API Connected"
+                  : "🔴 MLB API Disconnected"
+                : "🔴 API Disconnected"}
             </div>
           </div>
         )}
@@ -616,6 +655,8 @@ const Dashboard = () => {
                       loadNFLPlayers();
                     } else if (selectedSport === "nba") {
                       loadNBAPlayers();
+                    } else if (selectedSport === "mlb") {
+                      loadMLBPlayers();
                     }
                   }}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
@@ -663,12 +704,15 @@ const Dashboard = () => {
                   <div className="mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
                     <p className="text-red-400 text-center">{error}</p>
                     {(selectedSport === "nfl" ||
-                      selectedSport === "nba") && (
+                      selectedSport === "nba" ||
+                      selectedSport === "mlb") && (
                       <button
                         onClick={
                           selectedSport === "nfl"
                             ? loadNFLPlayers
-                            : loadNBAPlayers
+                            : selectedSport === "nba"
+                            ? loadNBAPlayers
+                            : loadMLBPlayers
                         }
                         className="mt-2 mx-auto block px-4 py-2 bg-red-500/30 hover:bg-red-500/50 rounded-lg text-red-300 transition-colors"
                       >
@@ -705,6 +749,8 @@ const Dashboard = () => {
                               ? "NFL API is not available. Please start the API server."
                               : selectedSport === "nba" && !nbaApiHealthy
                               ? "NBA API is not available. Please start the API server."
+                              : selectedSport === "mlb" && !mlbApiHealthy
+                              ? "MLB API is not available. Please start the API server."
                               : "Select a sport to view available players"}
                           </p>
                         </div>

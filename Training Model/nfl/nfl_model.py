@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import TimeSeriesSplit, cross_val_score
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import nfl_data_py as nfl
 import joblib
@@ -35,11 +35,37 @@ class ImprovedNFLModel:
             }
         }
     
-    def load_and_clean_data(self):
+    def load_and_clean_data(self, use_temporal_split=True):
         """Load and clean NFL data with proper temporal split"""
         print("Loading NFL data...")
         
-        # Load training data (2023)
+        if use_temporal_split:
+            # Load all available data for temporal splitting
+            all_years = [2022, 2023, 2024]
+            all_data = []
+            
+            for year in all_years:
+                try:
+                    year_data = nfl.import_weekly_data([year], columns=[
+                        'player_id', 'player_name', 'position', 'recent_team', 'week', 'season',
+                        'passing_yards', 'passing_tds', 'interceptions', 'attempts',
+                        'rushing_yards', 'rushing_tds', 'carries',
+                        'receiving_yards', 'receiving_tds', 'receptions', 'targets',
+                        'fantasy_points_ppr'
+                    ])
+                    if not year_data.empty:
+                        year_data['season'] = year
+                        all_data.append(year_data)
+                except:
+                    print(f"Could not load data for {year}")
+            
+            if all_data:
+                combined_data = pd.concat(all_data, ignore_index=True)
+                # Sort by season and week for proper temporal ordering
+                combined_data = combined_data.sort_values(['season', 'week'])
+                return self.clean_data(combined_data), None
+            
+        # Fallback to original year-based split
         train_data = nfl.import_weekly_data([2023], columns=[
             'player_id', 'player_name', 'position', 'recent_team', 'week',
             'passing_yards', 'passing_tds', 'interceptions', 'attempts',
@@ -48,7 +74,6 @@ class ImprovedNFLModel:
             'fantasy_points_ppr'
         ])
         
-        # Load test data (2024)
         test_data = nfl.import_weekly_data([2024], columns=[
             'player_id', 'player_name', 'position', 'recent_team', 'week',
             'passing_yards', 'passing_tds', 'interceptions', 'attempts',
@@ -57,11 +82,27 @@ class ImprovedNFLModel:
             'fantasy_points_ppr'
         ])
         
-        # Clean and aggregate data
         train_clean = self.clean_and_aggregate(train_data, 'train')
         test_clean = self.clean_and_aggregate(test_data, 'test')
         
         return train_clean, test_clean
+    
+    def clean_data(self, data):
+        """Clean weekly data without aggregation for temporal split"""
+        numeric_cols = ['passing_yards', 'passing_tds', 'interceptions', 'attempts',
+                       'rushing_yards', 'rushing_tds', 'carries',
+                       'receiving_yards', 'receiving_tds', 'receptions', 'targets',
+                       'fantasy_points_ppr']
+        
+        for col in numeric_cols:
+            data[col] = pd.to_numeric(data[col], errors='coerce').fillna(0)
+        
+        # Remove invalid data
+        data = data[data['fantasy_points_ppr'].notna()]
+        data = data[data['position'].isin(['QB', 'RB', 'WR', 'TE'])]
+        
+        print(f"Cleaned data: {len(data)} game records")
+        return data
     
     def clean_and_aggregate(self, data, dataset_type):
         """Clean and aggregate weekly data to season totals"""
@@ -94,6 +135,50 @@ class ImprovedNFLModel:
         print(f"{dataset_type.title()} data: {len(season_data)} players")
         
         return season_data
+    
+    def train_position_models_temporal(self, data):
+        """Train models using TimeSeriesSplit for proper temporal validation"""
+        print("\nTraining position-specific models with temporal validation...")
+        
+        tscv = TimeSeriesSplit(n_splits=3)
+        
+        for position in ['QB', 'RB', 'WR', 'TE']:
+            pos_data = data[data['position'] == position].copy()
+            
+            if len(pos_data) < 50:
+                print(f"Skipping {position}: insufficient data ({len(pos_data)} records)")
+                continue
+            
+            # Get position-specific features
+            features = self.position_configs[position]['features']
+            
+            # Prepare features and target
+            X = pos_data[features].fillna(0)
+            y = pos_data['fantasy_points_ppr']
+            
+            # Train model with cross-validation
+            model_params = self.position_configs[position]['model_params']
+            model = RandomForestRegressor(**model_params)
+            
+            # Perform time series cross-validation
+            cv_scores = cross_val_score(model, X, y, cv=tscv, 
+                                      scoring='r2', n_jobs=-1)
+            
+            # Train final model on all data
+            model.fit(X, y)
+            
+            # Store model and features
+            self.models[position] = model
+            self.feature_columns[position] = features
+            
+            # Calculate metrics
+            y_pred = model.predict(X)
+            r2 = r2_score(y, y_pred)
+            mae = mean_absolute_error(y, y_pred)
+            
+            print(f"{position}: {len(pos_data)} records, R² = {r2:.3f}, "
+                  f"CV R² = {cv_scores.mean():.3f} (+/- {cv_scores.std() * 2:.3f}), "
+                  f"MAE = {mae:.1f}")
     
     def train_position_models(self, train_data):
         """Train separate models for each position"""
@@ -201,23 +286,33 @@ def main():
     # Initialize model
     nfl_model = ImprovedNFLModel()
     
-    # Load and clean data
-    train_data, test_data = nfl_model.load_and_clean_data()
-    
-    # Train position-specific models
-    nfl_model.train_position_models(train_data)
-    
-    # Evaluate on test data
-    results = nfl_model.evaluate_model(test_data)
-    
-    # Save results
-    results.to_csv('inference_results.csv', index=False)
-    print(f"\nSaved results to 'inference_results.csv'")
+    # Try temporal split first
+    try:
+        print("Attempting temporal split approach...")
+        data, _ = nfl_model.load_and_clean_data(use_temporal_split=True)
+        if data is not None:
+            nfl_model.train_position_models_temporal(data)
+        else:
+            raise Exception("Temporal data loading failed")
+    except:
+        print("\nFalling back to year-based split...")
+        # Load and clean data with year-based split
+        train_data, test_data = nfl_model.load_and_clean_data(use_temporal_split=False)
+        
+        # Train position-specific models
+        nfl_model.train_position_models(train_data)
+        
+        # Evaluate on test data
+        results = nfl_model.evaluate_model(test_data)
+        
+        # Save results
+        results.to_csv('inference_results.csv', index=False)
+        print(f"\nSaved results to 'inference_results.csv'")
     
     # Save models
     nfl_model.save_models()
     
-    print("\nImproved model training complete!")
+    print("\nModel training complete with temporal validation!")
 
 if __name__ == "__main__":
     main() 
