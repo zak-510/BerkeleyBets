@@ -6,6 +6,26 @@ An AI-powered sports betting platform that combines predictive analytics, live d
 
 BerkeleyBets transforms raw sports data into actionable betting intelligence through machine learning models and real-time analytics. The platform provides users with player performance predictions, statistical analysis, and a comprehensive betting interface built on data-driven insights.
 
+## Quick Start 🏃‍♂️💨
+If you just want to see the platform running locally without retraining models:
+
+```bash
+# 1. Clone
+git clone https://github.com/zak-510/BerkeleyBets.git
+cd BerkeleyBets
+
+# 2. Backend – install deps & run (Port 3001)
+npm install
+node server.js
+
+# 3. Front-end – in a new terminal (Port 5173)
+cd client
+npm install
+npm run dev -- --host
+```
+
+Open `http://localhost:5173` in your browser – the React app will talk to the unified API on `http://localhost:3001`.
+
 ## Features
 
 ### Core Functionality
@@ -79,40 +99,35 @@ BerkeleyBets/
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/your-username/BerkeleyBets.git
+git clone https://github.com/zak-510/BerkeleyBets.git
 cd BerkeleyBets
 ```
 
-2. **Install frontend dependencies**
+2. **Install backend dependencies & start the API**
+```bash
+npm install
+node server.js     # Unified Express API on port 3001
+```
+
+3. **Install frontend dependencies & start the React dev server**
 ```bash
 cd client
 npm install
+npm run dev -- --host   # Serves the app at http://localhost:5173
 ```
 
-3. **Install Python dependencies**
+4. **(Optional) Python environment for model retraining**
+If you need to retrain or fine-tune ML models:
 ```bash
-cd ../ml-models
-pip install -r requirements.txt
+python -m venv .venv && source .venv/bin/activate
+pip install -r ml-models/requirements.txt  # or your own list
 ```
 
-4. **Set up environment variables**
+5. **Environment variables (Firebase, etc.)**
 ```bash
 # Create .env file in client directory
 cp client/.env.example client/.env
 # Add your Firebase and API configurations
-```
-
-5. **Start the development servers**
-```bash
-# Terminal 1 - Frontend
-cd client
-npm run dev
-
-# Terminal 2 - ML Models (if running locally)
-cd ml-models
-python -m nba.get_top_players
-python -m nfl.get_top_players
-python -m mlb.get_top_players
 ```
 
 ### Configuration
@@ -128,10 +143,9 @@ VITE_PROJECT_ID=your_project_id
 ```
 
 #### API Configuration
-The application expects ML model APIs to be running on:
-- NBA: `http://localhost:3002`
-- NFL: `http://localhost:3001`
-- MLB: `http://localhost:3003`
+All sports endpoints (NBA, NFL, MLB) are served by the unified Express API on:
+- `http://localhost:3001`
+The React client proxies requests automatically.
 
 ## Usage
 
@@ -177,25 +191,28 @@ cd ../../mlb
 python train_balanced_realistic_models.py
 ```
 
-## API Endpoints
+## API Endpoints (Unified – Port 3001)
 
-### NBA API (Port 3002)
-- `GET /api/nba/players` - Get all NBA players
-- `GET /api/nba/players/top?limit=50` - Get top players
-- `GET /api/nba/search?q=player_name` - Search players
-- `GET /health` - Health check
+### NBA
+- `GET /api/nba/players` – All players
+- `GET /api/nba/players/top?limit=50` – Top players
+- `GET /api/nba/players/:position` – Position-filtered players
+- `GET /api/nba/search?q=name` – Search players
 
-### NFL API (Port 3001)
-- `GET /api/nfl/players` - Get all NFL players
-- `GET /api/nfl/players/top?limit=50` - Get top players
-- `GET /api/nfl/search?q=player_name` - Search players
-- `GET /health` - Health check
+### NFL
+- `GET /api/nfl/players`
+- `GET /api/nfl/players/top?limit=50`
+- `GET /api/nfl/players/:position`
+- `GET /api/nfl/search?q=name`
 
-### MLB API (Port 3003)
-- `GET /api/mlb/players` - Get all MLB players
-- `GET /api/mlb/players/top?limit=50` - Get top players
-- `GET /api/mlb/search?q=player_name` - Search players
-- `GET /health` - Health check
+### MLB
+- `GET /api/mlb/players`
+- `GET /api/mlb/players/top?limit=50`
+- `GET /api/mlb/players/:position`
+- `GET /api/mlb/search?q=name`
+
+### Misc
+- `GET /health` – Health check for the backend
 
 ## Data Models
 
