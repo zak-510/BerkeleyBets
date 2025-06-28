@@ -24,7 +24,7 @@ def load_models():
     positions = ['1b', '2b', '3b', 'c', 'of', 'p', 'ss']
     
     for pos in positions:
-        model_file = os.path.join(os.path.dirname(__file__), 'models', f'mlb_{pos}_model.pkl')
+        model_file = os.path.join(os.path.dirname(__file__), '..', 'models', f'mlb_{pos}_model.pkl')
         if Path(model_file).exists():
             try:
                 models[pos.upper()] = joblib.load(model_file)

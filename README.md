@@ -81,17 +81,21 @@ BerkeleyBets/
 │   │   └── contexts/          # React context providers
 ├── backend/                   # Express API server
 │   └── server.js             # Main server file
-├── ml-models/                 # Machine learning training & inference
-│   ├── nba/                   # NBA prediction models
-│   ├── nfl/                   # NFL prediction models
-│   └── mlb/                   # MLB prediction models
-├── models/                    # Trained model files (.pkl)
-│   ├── nba/                   # NBA trained models
-│   ├── nfl/                   # NFL trained models
-│   └── mlb/                   # MLB trained models
-├── docs/                      # Documentation & specs
-├── archive/                   # Historical data & old training
-└── mlb/                      # MLB-specific utilities
+├── ml-models/                 # Machine learning models & scripts
+│   ├── nba/                   # NBA models & inference
+│   │   ├── scripts/           # get_top_players.py, search_players.py
+│   │   ├── models/            # Trained model files (.pkl)
+│   │   └── docs/              # NBA-specific documentation
+│   ├── nfl/                   # NFL models & inference  
+│   │   ├── scripts/           # get_top_players.py, search_players.py
+│   │   └── models/            # Trained model files (.pkl)
+│   └── mlb/                   # MLB models & inference
+│       ├── scripts/           # get_top_players.py, search_players.py
+│       ├── models/            # Trained model files (.pkl)
+│       ├── src/               # MLB utilities & data processing
+│       └── docs/              # MLB-specific documentation
+├── docs/                      # General documentation & specs
+└── archive/                   # Historical data & old training code
 ```
 
 ## Setup Instructions
@@ -167,17 +171,17 @@ The React client proxies requests automatically.
 #### Running Models Locally
 ```bash
 # NBA models
-cd ml-models/nba
+cd ml-models/nba/scripts
 python get_top_players.py
 python search_players.py "LeBron James"
 
 # NFL models
-cd ../nfl
+cd ../nfl/scripts
 python get_top_players.py
 python search_players.py "Josh Allen"
 
 # MLB models
-cd ../mlb
+cd ../mlb/scripts
 python get_top_players.py
 python search_players.py "Aaron Judge"
 ```
