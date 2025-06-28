@@ -6,7 +6,7 @@ An AI-powered sports betting platform that combines predictive analytics, live d
 
 BerkeleyBets transforms raw sports data into actionable betting intelligence through machine learning models and real-time analytics. The platform provides users with player performance predictions, statistical analysis, and a comprehensive betting interface built on data-driven insights.
 
-## Quick Start 🏃‍♂️💨
+## Quick Start 
 If you just want to see the platform running locally without retraining models:
 
 ```bash
