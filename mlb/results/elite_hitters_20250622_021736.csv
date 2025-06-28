@@ -1,7 +1,0 @@
-player_name,position,predicted_fantasy_points,fantasy_confidence,prediction_date,batting_average_skill,on_base_percentage_skill,slugging_percentage_skill,walk_rate_skill,strikeout_rate_skill,power_rate_skill,skill_confidence
-José Altuve,2B,5.33,0.3,2025-06-22 02:17:36,0.399,0.45,0.7,0.03,0.1,0.1,0.8
-Manny Machado,3B,5.33,0.3,2025-06-22 02:17:36,0.392,0.449,0.57,0.03,0.25,0.005,0.8
-Mookie Betts,OF,6.74,0.3,2025-06-22 02:17:36,0.287,0.439,0.696,0.2,0.2,0.1,0.8
-Matt Olson,1B,3.88,0.3,2025-06-22 02:17:36,0.4,0.45,0.48,0.2,0.2,0.005,0.7
-Pete Alonso,1B,3.05,0.3,2025-06-22 02:17:36,0.4,0.448,0.504,0.03,0.25,0.005,0.7
-Rafael Devers,3B,2.77,0.3,2025-06-22 02:17:36,0.254,0.447,0.493,0.2,0.1,0.005,0.7

@@ -1,7 +1,0 @@
-player_name,position,player_type,predicted_fantasy_points,fantasy_confidence,prediction_date,estimated_batting_avg,estimated_on_base_pct,estimated_slugging_pct,estimated_walk_rate,estimated_strikeout_rate,skill_confidence,value_score
-Paul Goldschmidt,1B,batter,6.06,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.0,0.333,0.6,6.1739999999999995
-Francisco Lindor,SS,batter,6.45,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.2,0.0,0.6,6.33
-Mookie Betts,OF,batter,6.74,0.3,2025-06-22 02:13:18,0.25,0.325,0.4,0.2,0.2,0.6,24.445999999999998
-Trea Turner,SS,batter,6.7,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.0,0.5,0.6,6.43
-Gleyber Torres,2B,batter,6.73,0.3,2025-06-22 02:13:18,0.2,0.275,0.25,0.167,0.167,0.6,18.442
-Juan Soto,OF,batter,6.58,0.3,2025-06-22 02:13:18,0.0,0.075,0.05,0.333,0.167,0.6,6.382

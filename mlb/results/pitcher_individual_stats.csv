@@ -1,6 +1,0 @@
-player_name,position,predicted_fantasy_points,fantasy_confidence,fantasy_model_r2,prediction_date,predicted_innings_pitched,predicted_innings_pitched_confidence,predicted_strikeouts,predicted_strikeouts_confidence,predicted_hits_allowed,predicted_hits_allowed_confidence,predicted_walks_allowed,predicted_walks_allowed_confidence,predicted_home_runs_allowed,predicted_home_runs_allowed_confidence,predicted_earned_runs,predicted_earned_runs_confidence
-Spencer Strider,P,12.35,0.78,0.785,2025-06-22 02:07:03,5.2,0.71,5,0.52,5,0.5,2,0.23,1,0.1,2,0.34
-Gerrit Cole,P,11.44,0.78,0.785,2025-06-22 02:07:03,5.1,0.71,4,0.52,5,0.5,2,0.23,1,0.1,2,0.34
-Logan Webb,P,10.49,0.78,0.785,2025-06-22 02:07:03,4.8,0.71,4,0.52,5,0.5,2,0.23,1,0.1,2,0.34
-Corbin Burnes,P,11.87,0.78,0.785,2025-06-22 02:07:03,5.2,0.71,5,0.52,5,0.5,2,0.23,1,0.1,2,0.34
-Edwin Díaz,P,9.29,0.78,0.785,2025-06-22 02:07:03,4.2,0.71,3,0.52,5,0.5,1,0.23,1,0.1,2,0.34

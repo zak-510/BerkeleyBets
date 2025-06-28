@@ -107,7 +107,7 @@ function runPythonScript(scriptPath, args = []) {
 app.get('/api/nfl/players', async (req, res) => {
   try {
     const limit = req.query.limit || 100;
-    const scriptPath = path.join(__dirname, 'ml-models', 'nfl', 'scripts', 'get_top_players.py');
+    const scriptPath = path.join(__dirname, '..', 'ml-models', 'nfl', 'scripts', 'get_top_players.py');
     const result = await runPythonScript(scriptPath, ['ALL', limit.toString()]);
     
     res.json({
@@ -130,7 +130,7 @@ app.get('/api/nfl/players', async (req, res) => {
 app.get('/api/nfl/players/top', async (req, res) => {
   try {
     const limit = req.query.limit || 50;
-    const scriptPath = path.join(__dirname, 'ml-models', 'nfl', 'scripts', 'get_top_players.py');
+    const scriptPath = path.join(__dirname, '..', 'ml-models', 'nfl', 'scripts', 'get_top_players.py');
     const result = await runPythonScript(scriptPath, ['ALL', limit.toString()]);
     
     res.json({
@@ -154,7 +154,7 @@ app.get('/api/nfl/players/:position', async (req, res) => {
   try {
     const { position } = req.params;
     const limit = req.query.limit || 50;
-    const scriptPath = path.join(__dirname, 'ml-models', 'nfl', 'scripts', 'get_top_players.py');
+    const scriptPath = path.join(__dirname, '..', 'ml-models', 'nfl', 'scripts', 'get_top_players.py');
     const result = await runPythonScript(scriptPath, [position, limit.toString()]);
     
     res.json({
@@ -199,7 +199,7 @@ app.get('/api/nfl/stats', async (req, res) => {
 app.get('/api/nba/players', async (req, res) => {
   try {
     const limit = req.query.limit || 100;
-    const scriptPath = path.join(__dirname, 'ml-models', 'nba', 'scripts', 'get_top_players.py');
+    const scriptPath = path.join(__dirname, '..', 'ml-models', 'nba', 'scripts', 'get_top_players.py');
     const result = await runPythonScript(scriptPath, ['ALL', limit.toString()]);
     
     res.json({
@@ -222,7 +222,7 @@ app.get('/api/nba/players', async (req, res) => {
 app.get('/api/nba/players/top', async (req, res) => {
   try {
     const limit = req.query.limit || 50;
-    const scriptPath = path.join(__dirname, 'ml-models', 'nba', 'scripts', 'get_top_players.py');
+    const scriptPath = path.join(__dirname, '..', 'ml-models', 'nba', 'scripts', 'get_top_players.py');
     const result = await runPythonScript(scriptPath, ['ALL', limit.toString()]);
     
     res.json({
@@ -246,7 +246,7 @@ app.get('/api/nba/players/:position', async (req, res) => {
   try {
     const { position } = req.params;
     const limit = req.query.limit || 50;
-    const scriptPath = path.join(__dirname, 'ml-models', 'nba', 'scripts', 'get_top_players.py');
+    const scriptPath = path.join(__dirname, '..', 'ml-models', 'nba', 'scripts', 'get_top_players.py');
     const result = await runPythonScript(scriptPath, [position, limit.toString()]);
     
     res.json({
@@ -291,7 +291,7 @@ app.get('/api/nba/stats', async (req, res) => {
 app.get('/api/mlb/players', async (req, res) => {
   try {
     const limit = req.query.limit || 100;
-    const scriptPath = path.join(__dirname, 'mlb', 'get_top_players.py');
+    const scriptPath = path.join(__dirname, '..', 'mlb', 'get_top_players.py');
     const result = await runPythonScript(scriptPath, ['ALL', limit.toString()]);
     
     res.json({
@@ -314,7 +314,7 @@ app.get('/api/mlb/players', async (req, res) => {
 app.get('/api/mlb/players/top', async (req, res) => {
   try {
     const limit = req.query.limit || 50;
-    const scriptPath = path.join(__dirname, 'mlb', 'get_top_players.py');
+    const scriptPath = path.join(__dirname, '..', 'mlb', 'get_top_players.py');
     const result = await runPythonScript(scriptPath, ['ALL', limit.toString()]);
     
     res.json({
@@ -338,7 +338,7 @@ app.get('/api/mlb/players/:position', async (req, res) => {
   try {
     const { position } = req.params;
     const limit = req.query.limit || 50;
-    const scriptPath = path.join(__dirname, 'mlb', 'get_top_players.py');
+    const scriptPath = path.join(__dirname, '..', 'mlb', 'get_top_players.py');
     const result = await runPythonScript(scriptPath, [position, limit.toString()]);
     
     res.json({
@@ -391,7 +391,7 @@ app.get('/api/nfl/search', async (req, res) => {
       });
     }
     
-    const scriptPath = path.join(__dirname, 'ml-models', 'nfl', 'scripts', 'search_players.py');
+    const scriptPath = path.join(__dirname, '..', 'ml-models', 'nfl', 'scripts', 'search_players.py');
     const result = await runPythonScript(scriptPath, [query]);
     
     res.json({
@@ -421,7 +421,7 @@ app.get('/api/nba/search', async (req, res) => {
       });
     }
     
-    const scriptPath = path.join(__dirname, 'ml-models', 'nba', 'scripts', 'search_players.py');
+    const scriptPath = path.join(__dirname, '..', 'ml-models', 'nba', 'scripts', 'search_players.py');
     const result = await runPythonScript(scriptPath, [query]);
     
     res.json({
@@ -451,7 +451,7 @@ app.get('/api/mlb/search', async (req, res) => {
       });
     }
     
-    const scriptPath = path.join(__dirname, 'mlb', 'search_players.py');
+    const scriptPath = path.join(__dirname, '..', 'mlb', 'search_players.py');
     const result = await runPythonScript(scriptPath, [query]);
     
     res.json({
