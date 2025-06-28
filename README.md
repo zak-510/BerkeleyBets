@@ -85,7 +85,6 @@ BerkeleyBets/
 │   ├── nba/                   # NBA models & inference
 │   │   ├── scripts/           # get_top_players.py, search_players.py
 │   │   ├── models/            # Trained model files (.pkl)
-│   │   └── docs/              # NBA-specific documentation
 │   ├── nfl/                   # NFL models & inference  
 │   │   ├── scripts/           # get_top_players.py, search_players.py
 │   │   └── models/            # Trained model files (.pkl)
@@ -93,7 +92,6 @@ BerkeleyBets/
 │       ├── scripts/           # get_top_players.py, search_players.py
 │       ├── models/            # Trained model files (.pkl)
 │       ├── src/               # MLB utilities & data processing
-│       └── docs/              # MLB-specific documentation
 ├── docs/                      # General documentation & specs
 └── archive/                   # Historical data & old training code
 ```
