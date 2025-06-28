@@ -314,13 +314,14 @@ app.get('/api/mlb/players', async (req, res) => {
 app.get('/api/mlb/players/top', async (req, res) => {
   try {
     const limit = req.query.limit || 50;
+    const position = req.query.position || 'ALL';
     const scriptPath = path.join(__dirname, '..', 'ml-models', 'mlb', 'scripts', 'get_top_players.py');
-    const result = await runPythonScript(scriptPath, ['ALL', limit.toString()]);
+    const result = await runPythonScript(scriptPath, [position, limit.toString()]);
     
     res.json({
       success: true,
       players: result.players,
-      position: 'ALL',
+      position: position,
       limit: parseInt(limit),
       timestamp: new Date().toISOString()
     });
