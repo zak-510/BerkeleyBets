@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Build outputs
+dist/
+build/
+*.log
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# Model artifacts (keep the organized ones in models/)
+*.pkl
+!models/**/*.pkl
+
+# Data files
+*.csv
+!models/**/*.csv
+
+# Temporary files
+*.tmp
+*.temp 

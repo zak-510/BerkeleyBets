@@ -16,7 +16,7 @@ cd BerkeleyBets
 
 # 2. Backend – install deps & run (Port 3001)
 npm install
-node server.js
+npm start
 
 # 3. Front-end – in a new terminal (Port 5173)
 cd client
@@ -79,13 +79,19 @@ BerkeleyBets/
 │   │   ├── pages/             # Main application pages
 │   │   ├── services/          # API service layers
 │   │   └── contexts/          # React context providers
-├── ml-models/                 # Machine learning models
+├── backend/                   # Express API server
+│   └── server.js             # Main server file
+├── ml-models/                 # Machine learning training & inference
 │   ├── nba/                   # NBA prediction models
 │   ├── nfl/                   # NFL prediction models
 │   └── mlb/                   # MLB prediction models
-├── Training Model/            # Model training scripts
-├── server/                    # Backend API server
-└── docs/                     # Documentation
+├── models/                    # Trained model files (.pkl)
+│   ├── nba/                   # NBA trained models
+│   ├── nfl/                   # NFL trained models
+│   └── mlb/                   # MLB trained models
+├── docs/                      # Documentation & specs
+├── archive/                   # Historical data & old training
+└── mlb/                      # MLB-specific utilities
 ```
 
 ## Setup Instructions
@@ -106,7 +112,7 @@ cd BerkeleyBets
 2. **Install backend dependencies & start the API**
 ```bash
 npm install
-node server.js     # Unified Express API on port 3001
+npm start     # Unified Express API on port 3001
 ```
 
 3. **Install frontend dependencies & start the React dev server**
