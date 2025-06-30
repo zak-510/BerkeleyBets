@@ -265,16 +265,13 @@ python train_balanced_realistic_models.py
 
 ### NBA Models
 - **Points Prediction**: R² score of 0.85+ across all positions
-- **Rebounds/Assists**: Position-specific models with 80%+ accuracy
 - **Training Data**: 3+ seasons of historical performance
 
 ### NFL Models
-- **Fantasy Points**: 78% accuracy for skill position players
 - **Position-Specific Stats**: Separate models for QB, RB, WR, TE
 - **Training Data**: Multiple seasons with weather and matchup factors
 
 ### MLB Models
-- **Batting Stats**: Hits, runs, RBIs prediction with 75%+ accuracy
 - **Pitching Stats**: Strikeouts and innings pitched forecasting
 - **Training Data**: Comprehensive historical statistics
 
