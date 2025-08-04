@@ -358,7 +358,7 @@ class PositionSpecificModelTrainer:
         print(f"💾 Models saved to: {models_dir}")
         return models_dir
     
-    def predict_fantasy_points(self, player_data: Dict, position: str) -> Tuple[float, float]:
+    def predict_fantasy_points(self, player_data: Dict, position: str) -> float:
         """Make a prediction for a single player"""
         if position not in self.models:
             raise ValueError(f"No model available for position {position}")
@@ -381,11 +381,7 @@ class PositionSpecificModelTrainer:
         
         prediction = model.predict(X_scaled)[0]
         
-        # Calculate confidence based on model performance
-        performance = self.performance_metrics[position]
-        confidence = max(0, min(1, 1 - (performance['cv_mae_mean'] / 20)))  # Rough confidence measure
-        
-        return prediction, confidence
+        return prediction
 
 if __name__ == "__main__":
     import sys

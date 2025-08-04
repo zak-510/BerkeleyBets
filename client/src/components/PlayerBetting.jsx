@@ -172,8 +172,7 @@ const PlayerBetting = ({ player, sport, onClose, onPlaceBet }) => {
       target: target,
       direction: betDirection,
       amount: betAmount,
-      potentialPayout: payout,
-      confidence: player.confidence || player.stats?.confidence || 0.75
+      potentialPayout: payout
     };
 
     // Use the betting context to place the bet (it will handle Bear Bucks deduction)
@@ -376,10 +375,7 @@ const PlayerBetting = ({ player, sport, onClose, onPlaceBet }) => {
                     <span className="text-slate-400">Potential Payout:</span>
                     <span className="text-green-400 font-semibold">{calculatePayout()} Bear Bucks</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Model Confidence:</span>
-                    <span className="text-white">{Math.round((player.confidence || player.stats?.confidence || 0.75) * 100)}%</span>
-                  </div>
+
                 </div>
               </div>
 

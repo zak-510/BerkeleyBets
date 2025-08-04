@@ -287,18 +287,6 @@ const PlayerProfile = ({ player, sport, onClose }) => {
             </div>
           ))}
 
-          {/* Sport-specific information */}
-          <div className="mt-6 p-4 bg-slate-700/30 rounded-lg">
-            <h3 className="text-yellow-400 font-semibold mb-2">Model Information</h3>
-            <div className="text-slate-300 text-sm space-y-1">
-              <div>Sport: <span className="text-white font-medium">{sport?.toUpperCase() || 'Unknown'}</span></div>
-              <div>Predictions powered by machine learning models trained on historical performance data</div>
-              {(allStats.confidence || player.confidence) && (
-                <div>Model Confidence: <span className="text-white font-medium">{formatStatValue(allStats.confidence || player.confidence, 'confidence')}</span></div>
-              )}
-            </div>
-          </div>
-
           {/* Action Buttons */}
           <div className="flex justify-center gap-4 mt-6">
             <button

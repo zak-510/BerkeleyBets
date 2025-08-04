@@ -114,11 +114,8 @@ class MLBService {
       
       return {
         predictedFantasyPoints: safeNumber(apiPlayer.predicted_fantasy_points || apiPlayer.predictedFantasyPoints),
-        fantasyConfidence: safeNumber(apiPlayer.confidence || apiPlayer.fantasyConfidence, 0.75),
         projectedStrikeouts: strikeouts,
         projectedInningsPitched: innings,
-        strikeoutsConfidence: safeNumber(apiPlayer.strikeoutsConfidence, 0.80),
-        inningsPitchedConfidence: safeNumber(apiPlayer.inningsPitchedConfidence, 0.75),
         displayStats: [
           { label: 'Projected Strikeouts', value: formatDisplayValue(strikeouts) },
           { label: 'Projected Innings Pitched', value: formatDisplayValue(innings, 1) }
@@ -131,14 +128,12 @@ class MLBService {
       
       return {
         predictedFantasyPoints: safeNumber(apiPlayer.predicted_fantasy_points || apiPlayer.predictedFantasyPoints),
-        fantasyConfidence: safeNumber(apiPlayer.confidence || apiPlayer.fantasyConfidence, 0.75),
         projectedHits: hits,
         projectedRuns: runs,
         projectedRBIs: rbis,
         battingAvg: safeNumber(apiPlayer.battingAvg || apiPlayer.batting_average_skill, 0.250),
         onBasePct: safeNumber(apiPlayer.onBasePct || apiPlayer.on_base_percentage_skill, 0.320),
         sluggingPct: safeNumber(apiPlayer.sluggingPct || apiPlayer.slugging_percentage_skill, 0.400),
-        skillConfidence: safeNumber(apiPlayer.skillConfidence, 0.80),
         displayStats: [
           { label: 'Projected Hits', value: formatDisplayValue(hits) },
           { label: 'Projected Runs', value: formatDisplayValue(runs) },

@@ -93,10 +93,7 @@ const BettingPortfolio = ({ isOpen, onClose }) => {
           </div>
         )}
 
-        <div className="flex justify-between">
-          <span className="text-slate-400">Confidence:</span>
-          <span className="text-white">{Math.round(bet.confidence * 100)}%</span>
-        </div>
+
       </div>
 
       {bet.status === 'active' && (

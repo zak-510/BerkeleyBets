@@ -179,7 +179,7 @@ def main():
                     'position': player_data['position'],
                     'recent_team': player_data['team'],
                     'predicted_fantasy_points': round(fantasy_points, 1),
-                    'confidence': round(np.random.uniform(0.75, 0.95), 2)
+                    
                 }
                 
                 # Add position-specific detailed stats

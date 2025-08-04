@@ -293,7 +293,6 @@ def main():
                 'position': pos,
                 'team': player_data['team'],
                 'predicted_fantasy_points': round(fantasy_points, 1),
-                'confidence': 0.78,
                 'player_type': player_data['type']
             }
             

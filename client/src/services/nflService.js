@@ -89,7 +89,6 @@ class NFLService {
       stats: {
         predictedPoints: apiPlayer.predicted_fantasy_points || apiPlayer.predictedPoints,
         actualPoints: apiPlayer.actualPoints,
-        confidence: apiPlayer.confidence,
         accuracy: apiPlayer.accuracy,
         error: apiPlayer.error
       },
