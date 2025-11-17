@@ -15,24 +15,7 @@ npm run dev -- --host
 
 Open `http://localhost:5173` in your browser – the React app will talk to the unified API on `http://localhost:3001`.
 
-## Features
-
-### Core Functionality
-- **Multi-Sport Support**: NBA, NFL, and MLB player predictions
-- **AI-Powered Predictions**: Machine learning models for player performance forecasting
-- **Real-Time Data**: Live player statistics and performance metrics
-- **Betting System**: Virtual Bear Bucks currency with over/under/exact betting options
-- **Portfolio Management**: Track active bets, betting history, and performance analytics
-- **Player Profiles**: Comprehensive stat displays with position-specific metrics
-
-### Technical Features
-- **Responsive Design**: Optimized for desktop and mobile devices
-- **Real-Time Updates**: Live API integration for current player data
-- **Data Persistence**: Local storage and Firebase integration for user data
-- **Advanced Search**: Fuzzy search across all players and sports
-- **Health Monitoring**: API status tracking and error handling
-
-## Technology Stack
+## Tech Stack
 
 ### Frontend
 - **React 18**: Modern component-based UI framework
@@ -47,13 +30,13 @@ Open `http://localhost:5173` in your browser – the React app will talk to the 
 - **Python**: Machine learning and data processing
 - **Firebase**: Authentication and data storage
 
-### Machine Learning
+### ML
 - **scikit-learn**: ML model training and prediction
 - **pandas**: Data manipulation and analysis
 - **numpy**: Numerical computing
 - **joblib**: Model serialization and loading
 
-### Data Sources
+### Datasets
 - **ESPN API**: Player statistics and game data
 - **NBA API**: Basketball-specific data
 - **Custom scrapers**: MLB and NFL data collection
