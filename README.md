@@ -33,7 +33,7 @@ Open `http://localhost:5173` in your browser.
 ### ML
 - **scikit-learn**
 - **pandas**
-- **numpy**]
+- **numpy**
 - **joblib**
 
 ### Datasets
